@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Heygo 产品功能介绍</title>
+<meta name="description" content="Heygo IQ, Run Report, Day Report, Segment, Advanced Metrics, Turn Shape, Chatbot, Real-Time Voice">
+<meta property="og:title" content="Heygo 产品功能介绍 | Product Features">
+<meta property="og:description" content="单板 AI 滑雪搭子 · Your AI snowboard buddy">
+<meta property="og:image" content="assets/iq.jpg">
+<meta name="theme-color" content="#EEF3F8">
+<link rel="icon" href="assets/favicon.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,sans-serif;background:#EEF3F8;color:#0E1726;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+[data-lang]{display:none}
+body.zh .lang-zh,body.en .lang-en{display:block}
+.hero{background:linear-gradient(180deg,rgba(8,20,40,.15),rgba(8,20,40,.65)),url(assets/hero-bg.jpg) center/cover;color:#fff;padding:14px 20px 36px;min-height:440px;display:flex;flex-direction:column}
+.bar{display:flex;justify-content:space-between;align-items:center}
+.logo{height:30px;filter:invert(1)}
+.lang{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:5px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.hero-in{margin-top:auto;max-width:640px}
+.hero h1{font-size:34px;line-height:1.2;font-weight:800;letter-spacing:-.5px}
+.hero p{margin-top:10px;font-size:16px;opacity:.92}
+.chips{margin-top:14px}
+.chips span{display:inline-block;background:#3FE0C5;color:#062B26;font-weight:700;font-size:12px;border-radius:999px;padding:4px 12px}
+.toc{position:sticky;top:0;z-index:10;display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:rgba(238,243,248,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #DDE5EE;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:none;text-decoration:none;color:#33415A;background:#fff;border:1px solid #DDE5EE;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;white-space:nowrap}
+.toc a.on{background:#0E1726;color:#fff;border-color:#0E1726}
+main{max-width:1040px;margin:0 auto;padding:8px 16px 24px}
+.tabs{font-size:13px;color:#5B6B82;background:#fff;border-radius:14px;padding:10px 14px;margin:12px 0 4px}
+.feat{background:#fff;border-radius:22px;padding:22px 18px;margin-top:16px;scroll-margin-top:60px;box-shadow:0 1px 2px rgba(14,23,38,.04)}
+.num{font-size:12px;font-weight:800;color:#12B89C;letter-spacing:1px}
+.feat h2{font-size:24px;line-height:1.25;margin-top:2px;font-weight:800}
+.tag{display:inline-block;vertical-align:middle;margin-left:8px;font-size:12px;font-weight:600;color:#5B6B82;background:#EEF3F8;border-radius:999px;padding:2px 10px}
+.what{font-size:17px;font-weight:600;margin-top:10px;color:#0E1726}
+dl{margin-top:12px}
+dt{font-size:12px;font-weight:700;color:#12B89C;margin-top:12px;text-transform:uppercase;letter-spacing:.5px}
+dd{font-size:15px;color:#33415A;margin-top:2px}
+dd.where{background:#F3FBF9;border-left:3px solid #3FE0C5;padding:8px 10px;border-radius:0 10px 10px 0}
+.media{margin-top:18px}
+.stage{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,rgba(10,24,44,.25),rgba(10,24,44,.55)),url(assets/hero-bg.jpg) center/cover;padding:18px 0 22px}
+.row{display:flex;gap:14px;justify-content:center;padding:0 18px}
+.stage.multi .row{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.stage.multi .row::-webkit-scrollbar{display:none}
+.ph{flex:none;width:min(66vw,250px);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center}
+.ph img{width:100%;height:auto;filter:drop-shadow(0 14px 22px rgba(0,0,0,.35))}
+figcaption{background:#D6FF3C;color:#0E1726;font-weight:800;font-size:13px;padding:5px 12px;border-radius:4px;transform:rotate(-1.5deg);margin-bottom:6px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.2);position:relative}
+figcaption:after{content:"";position:absolute;left:50%;bottom:-12px;width:1.5px;height:10px;background:#fff}
+.stage.multi .row:after{content:"";flex:none;width:4px}
+.hint{font-size:12px;color:#8492A6;text-align:center}
+.note{margin-top:14px;background:#0E1726;color:#fff;border-radius:14px;padding:12px 14px}
+.note b{display:inline-block;background:#D6FF3C;color:#0E1726;font-size:13px;padding:2px 10px;border-radius:4px}
+.note p{font-size:14.5px;margin-top:6px;opacity:.92}
+.dims{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.dim{background:#F5F8FB;border-radius:14px;padding:12px}
+.dim-h b{font-size:16px}
+.dim-h span{font-size:11px;color:#5B6B82;margin-left:6px;font-weight:600}
+.dim p{font-size:12.5px;color:#5B6B82;margin-top:2px;line-height:1.45}
+.dim ul{list-style:none;margin-top:6px}
+.dim li{font-size:13px;font-weight:600;color:#0E1726;padding-left:12px;position:relative;line-height:1.7}
+.dim li:before{content:"";position:absolute;left:0;top:.72em;width:5px;height:5px;border-radius:50%;background:#3FE0C5}
+.mods{margin-top:16px;display:grid;gap:10px}
+.mod{background:#F5F8FB;border-radius:14px;padding:12px 14px}
+.mod-h b{font-size:16px}
+.mod-h span{display:block;font-size:13px;color:#12B89C;font-weight:600}
+.mod ul{list-style:none;margin-top:6px}
+.mod li{font-size:13.5px;color:#33415A;line-height:1.55;margin-top:6px}
+.mod li b{display:block;color:#0E1726;font-size:13.5px}
+.issues{background:#0E1726;color:#fff;border-radius:22px;padding:22px 18px;margin-top:16px}
+.issues h2{font-size:20px}
+.issues p{font-size:14px;opacity:.75;margin-top:6px}
+.issues ol{list-style:none;counter-reset:i;margin-top:14px;display:grid;gap:8px}
+.issues li{counter-increment:i;font-size:15px;font-weight:600;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.issues li:before{content:counter(i);flex:none;width:24px;height:24px;border-radius:50%;background:#D6FF3C;color:#0E1726;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
+.dev{width:120px;margin:0 auto 10px;border-radius:16px;mix-blend-mode:multiply}
+@media (min-width:900px){
+  .hero{min-height:600px;padding:22px max(48px,calc((100vw - 1200px)/2)) 72px}
+  .logo{height:36px}
+  .hero h1{font-size:60px;letter-spacing:-1px}
+  .hero p{font-size:20px;max-width:620px;margin-top:14px}
+  .chips span{font-size:14px;padding:6px 16px}
+  .toc{justify-content:center;padding:12px 24px}
+  .toc a{font-size:14px;padding:7px 16px}
+  main{max-width:1200px;padding:8px 32px 40px}
+  .tabs{font-size:14px;text-align:center;margin-top:20px}
+  .feat{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center;padding:48px;margin-top:24px;border-radius:28px}
+  .feat:nth-of-type(even) .txt{order:2}
+  .feat h2{font-size:34px}
+  .tag{font-size:13px}
+  .what{font-size:20px}
+  dd{font-size:16px}
+  .media{margin-top:0}
+  .stage{padding:34px 0 38px;border-radius:24px}
+  .ph{width:290px}
+  .feat.wide{display:block}
+  .feat.wide .txt{display:grid;grid-template-columns:1fr 1.25fr;column-gap:56px;align-items:start}
+  .feat.wide dl{margin-top:0}
+  .feat.wide .note{grid-column:1/-1;margin-top:24px;display:flex;gap:16px;align-items:center;padding:16px 20px}
+  .feat.wide .note p{margin-top:0;font-size:16px}
+  .feat.wide .note b{flex:none}
+  .feat.wide dl dt:first-child{margin-top:4px}
+  .feat.wide .dims{grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+  .feat.wide .media{margin-top:32px}
+  .stage.multi .row{justify-content:center;overflow:visible;gap:22px}
+  .stage.multi .row:after{display:none}
+  .feat.wide .ph{width:calc((100% - (var(--n) - 1)*18px - 36px)/var(--n));max-width:260px}
+  .stage.multi .row{gap:18px}
+  .hint{display:none}
+  .dim{padding:16px}
+  .feat.wide .mods{grid-column:1/-1;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+  .mod{padding:16px 18px}
+  .issues{padding:44px 48px;margin-top:24px;border-radius:28px}
+  .issues h2{font-size:30px}
+  .issues p{font-size:16px;max-width:760px}
+  .issues ol{grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+  .issues li{font-size:16px;padding:14px 16px}
+  footer{padding:40px 20px 56px}
+}
+@media (min-width:900px) and (max-width:1100px){
+  .feat{gap:36px;padding:36px}
+  .ph{width:250px}
+}
+</style></head>
+<body class="zh"><div class="lang-zh" data-lang="zh">
+<header class="hero">
+  <div class="bar"><img class="logo" src="assets/heygo-logo-black.png" alt="Heygo"><button class="lang" data-to="en">EN</button></div>
+  <div class="hero-in">
+    <h1>单板 AI 滑雪搭子</h1>
+    <p>把设备装在雪鞋侧面，Heygo 分析你的每一个弯，告诉你滑得怎么样、下一趟该练什么。</p>
+    <div class="chips"><span>目前支持单板滑雪</span></div>
+  </div>
+</header>
+<nav class="toc"><a href="#iq">Heygo IQ</a><a href="#run">Run Report</a><a href="#day">Day Report</a><a href="#segment">Segment 分析</a><a href="#metrics">进阶指标</a><a href="#turn">弯型</a><a href="#chat">Chatbot</a><a href="#voice">实时语音</a></nav>
+<main>
+<p class="tabs">App 三个入口：首页（回看每天每趟）· Go（滑行 + 对话）· 我的（个人数据）</p>
+
+<section class="feat wide" id="iq">
+  <div class="txt">
+    <div class="head"><div class="num">01</div>
+    <h2>Heygo IQ<span class="tag">滑行能力分</span></h2>
+    <p class="what">一个 0–200 的综合分，把你的滑行技术浓缩成一个数字。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>由时机、施压、流畅度、相似度四个维度合成，分初学者（0–89）、进阶（90–129）、高级（130–169）、专家（170–200）四档。今天比昨天进步了多少、这一趟和上一趟谁更好，看这个数就知道。</dd>
+      <dt>在哪里</dt><dd class="where">首页顶部大卡片；每一天、每一趟、每个片段的右上角；「我的」里有历史最高分。</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:2"><div class="row"><figure class="ph"><figcaption>首页 · Heygo IQ</figcaption><img src="assets/r-home-zh.webp" alt="首页 · Heygo IQ" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Heygo IQ 详情</figcaption><img src="assets/r-iq-zh.webp" alt="Heygo IQ 详情" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
+</section>
+<section class="feat wide" id="run">
+  <div class="txt">
+    <div class="head"><div class="num">02</div>
+    <h2>Run Report<span class="tag">单趟报告</span></h2>
+    <p class="what">每滑完一趟，自动生成这一趟的复盘。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>一段话总结这趟滑得怎么样，附距离、落差、最高速度、最大刃角；再列出做得好的地方、和上一趟的对比、Heygo Insight（数据 → 归因 → 技能 → 练习）和推荐练习。点开推荐练习，有视频示范和分步动作要领。坐缆车时看一眼，下一趟就知道练什么。</dd>
+      <dt>在哪里</dt><dd class="where">滑完一趟，Go 页面自动出现报告卡片，点「更多」看全文；也可以从 首页 → 某一天 → 某一趟 打开。</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>单趟报告</figcaption><img src="assets/r-run-zh.webp" alt="单趟报告" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Heygo Insight 展开</figcaption><img src="assets/r-insight-zh.webp" alt="Heygo Insight 展开" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>点开练习：视频教学</figcaption><img src="assets/r-drill-zh.webp" alt="点开练习：视频教学" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
+</section>
+<section class="feat" id="day">
+  <div class="txt">
+    <div class="head"><div class="num">03</div>
+    <h2>Day Report<span class="tag">雪日报告</span></h2>
+    <p class="what">一整天的滑行总结。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>当天的总距离、落差、最高速度、最大刃角和最佳一趟；Heygo IQ 分布（可和前几天对比）；四个维度在各趟之间的变化曲线；再加上今日亮点、主要问题和下次训练建议。收工后看，今天练得怎么样一目了然。</dd>
+      <dt>在哪里</dt><dd class="where">首页 → 雪迹里点某一天 → 「生成日报」（每天一次）；Go 页面也会推送日报卡片。</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>雪日报告</figcaption><img src="assets/r-day3-zh.webp" alt="雪日报告" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat wide" id="segment">
+  <div class="txt">
+    <div class="head"><div class="num">04</div>
+    <h2>Segment 分析<span class="tag">片段详情</span></h2>
+    <p class="what">每一趟会被自动切成几个「片段」——一串连续的转弯算一段，停下来就开始下一段。片段是 Heygo 看你技术的最小单位。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>每个片段都有自己的 Heygo IQ、基础数据、四维雷达图、最佳弯形和逐弯分析；AI 亮点卡先告诉你这段哪里做得好，再给下一趟可以试的一件事。每趟还会标出「最佳片段」。</dd>
+      <dt>在哪里</dt><dd class="where">首页 → 某一天 → 某一趟 → 片段列表，点任一片段进入。</dd>
+    </dl>
+    <div class="note"><b>自动识别动作场景</b><p>滑了反脚或者走刃（Carving），Heygo 都能识别出来，并在单趟详情下方的片段列表里给对应片段打上「反脚」「走刃」标签，一眼就能找到。</p></div>
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:2"><div class="row"><figure class="ph"><figcaption>单趟详情 · 走刃 / 反脚标签</figcaption><img src="assets/r-segtags3-zh.webp" alt="单趟详情 · 走刃 / 反脚标签" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>片段详情 · 四维雷达</figcaption><img src="assets/r-seg3b-zh.webp" alt="片段详情 · 四维雷达" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
+</section>
+<section class="feat wide" id="metrics">
+  <div class="txt">
+    <div class="head"><div class="num">05</div>
+    <h2>进阶指标<span class="tag">4 个维度 · 13 项</span></h2>
+    <p class="what">Heygo IQ 背后的明细：13 项进阶指标，按四个维度归类。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>IQ 告诉你「多少分」，进阶指标告诉你「差在哪」。每个维度都能展开看具体指标和说明。</dd>
+      <dt>在哪里</dt><dd class="where">片段详情页的雷达图，点任一维度展开。</dd>
+    </dl>
+    
+    <div class="dims"><div class="dim"><div class="dim-h"><b>时机</b><span>Timing</span></div><p>换刃和立刃建立的时机</p><ul><li>提前换刃</li><li>立刃速度</li><li>换刃减压</li></ul></div><div class="dim"><div class="dim-h"><b>施压</b><span>Pressure</span></div><p>弯中施压和释放是否稳定顺畅</p><ul><li>施压质量</li><li>离心力</li><li>弯型闭合</li><li>转向速度</li></ul></div><div class="dim"><div class="dim-h"><b>流畅度</b><span>Flow</span></div><p>立刃角度和节奏衔接得顺不顺</p><ul><li>立刃流畅度</li><li>节奏</li><li>弯型</li></ul></div><div class="dim"><div class="dim-h"><b>相似度</b><span>Similarity</span></div><p>前刃弯和后刃弯像不像</p><ul><li>速度相似度</li><li>立刃相似度</li><li>转弯半径相似度</li></ul></div></div>
+  </div>
+  <div class="media"><div class="stage multi" style="--n:4"><div class="row"><figure class="ph"><figcaption>时机 Timing</figcaption><img src="assets/r-m-timing-zh.webp" alt="时机 Timing" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>施压 Pressure</figcaption><img src="assets/r-m-pressure-zh.webp" alt="施压 Pressure" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>流畅度 Flow</figcaption><img src="assets/r-m-flow-zh.webp" alt="流畅度 Flow" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>相似度 Similarity</figcaption><img src="assets/r-m-similarity-zh.webp" alt="相似度 Similarity" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看 4 个维度 →</p></div>
+</section>
+<section class="feat" id="turn">
+  <div class="txt">
+    <div class="head"><div class="num">06</div>
+    <h2>弯型<span class="tag">最佳弯形</span></h2>
+    <p class="what">把这一段里最有代表性的弯画出来，前刃弯、后刃弯各是什么形状，一眼看清。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>看弯是不是圆润的 C 形、有没有把弯收完、前后刃是否对称。「弯型」同时也是流畅度维度下的一项指标；片段还会按小弯、中弯、大弯、混合弯型分类。</dd>
+      <dt>在哪里</dt><dd class="where">片段详情 → 最佳弯形。</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>最佳弯形</figcaption><img src="assets/r-seg3-zh.webp" alt="最佳弯形" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat" id="chat">
+  <div class="txt">
+    <div class="head"><div class="num">07</div>
+    <h2>Chatbot<span class="tag">Heygo 教练对话</span></h2>
+    <p class="what">随时可以问的 AI 滑雪教练。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>它看得到你每一趟、每一天的数据和报告，也记得之前聊过什么，所以回答是针对你本人的。「今天哪里进步了？」「后刃弯总收不住怎么办？」「下一趟练什么？」都可以直接问，还会推荐对应的练习。</dd>
+      <dt>在哪里</dt><dd class="where">底部 Go 页面就是对话界面；某一天、某一趟、某个片段的详情页点「和教练聊聊」，会带着这段滑行一起问。</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>滑行中 · 教练对话</figcaption><img src="assets/r-chatride-zh.webp" alt="滑行中 · 教练对话" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat wide" id="voice">
+  <div class="txt">
+    <div class="head"><div class="num">08</div>
+    <h2>实时语音<span class="tag">Heygo 语音功能</span></h2>
+    <p class="what">滑行中戴上耳机，实时听到教练的声音。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>不用掏手机，教练就在耳边。分三个模块：Coach 帮你边滑边改，播报让你随时知道自己滑得怎么样，关怀在你一个人滑的时候照看你。</dd>
+      <dt>在哪里</dt><dd class="where">Go 页面开始滑行；教练模式可选 详细（认真练，提醒最多）/ 简洁（放松滑，只提要紧的）/ 静音（安静滑，练完再看）。</dd>
+    </dl>
+    
+    <div class="mods"><div class="mod"><div class="mod-h"><b>Coach</b><span>边滑边改，像教练在身边</span></div><ul><li><b>滑行问题提醒</b>发现问题时告诉你哪里不对、接下来试什么；等你停下来再说，不在转弯中打断你。</li><li><b>提醒后问题纠正</b>你改过来了，第一时间告诉你「这次对了」。</li><li><b>多次提醒问题无进步</b>同一个问题反复出现，换个角度再讲一次。</li><li><b>缆车读报告</b>坐缆车时把刚才这趟的报告读给你听。</li></ul></div><div class="mod"><div class="mod-h"><b>播报</b><span>不看手机，也知道自己滑得怎么样</span></div><ul><li><b>开始滑行</b>出发时一句开场，告诉你已经开始记录。</li><li><b>里程碑</b>转弯数、距离、趟数、速度、落差到了节点就报给你。</li><li><b>结束评语</b>一趟滑完，给一句总结。</li><li><b>设备电量提醒</b>设备电量低时提前提醒你。</li></ul></div><div class="mod"><div class="mod-h"><b>关怀</b><span>一个人滑，也有人照看</span></div><ul><li><b>摔倒提醒</b>摔了之后问一句「你还好吗」。</li><li><b>休息提醒</b>连续滑太久，提醒你歇一歇。</li></ul></div></div>
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>教练模式</figcaption><img src="assets/r-voice-zh.webp" alt="教练模式" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="issues"><h2>想更直接地体验 Heygo AI Coach？</h2><p>可以试着模仿业余滑雪者，滑出下面这些问题（包括但不限于）。Heygo 的模型会识别出你滑行中这些比较关键的问题，并给你对应的教学和语音反馈。</p><ol><li>甩板尾</li><li>缺少上半弧</li><li>缺少提前换刃</li><li>立刃不稳定</li><li>立刃过高（突突突）</li><li>换刃犹豫</li></ol></section>
+</main>
+<footer><img src="assets/device.jpg" alt="" class="dev"><p>页面中的界面图为设计稿示意，数据为示例，实际以 App 为准。</p><p>© Heygo</p></footer>
+</div><div class="lang-en" data-lang="en">
+<header class="hero">
+  <div class="bar"><img class="logo" src="assets/heygo-logo-black.png" alt="Heygo"><button class="lang" data-to="zh">中文</button></div>
+  <div class="hero-in">
+    <h1>Your AI snowboard buddy</h1>
+    <p>Clip the device to the side of your boots. Heygo analyzes every turn and tells you how you rode — and what to work on next run.</p>
+    <div class="chips"><span>Snowboarding only for now</span></div>
+  </div>
+</header>
+<nav class="toc"><a href="#en-iq">Heygo IQ</a><a href="#en-run">Run Report</a><a href="#en-day">Day Report</a><a href="#en-segment">Segment Analysis</a><a href="#en-metrics">Advanced Metrics</a><a href="#en-turn">Turn Shape</a><a href="#en-chat">Chatbot</a><a href="#en-voice">Real-Time Voice</a></nav>
+<main>
+<p class="tabs">Three tabs: Home (look back at every day and run) · Go (ride + chat) · Profile (your stats)</p>
+
+<section class="feat wide" id="en-iq">
+  <div class="txt">
+    <div class="head"><div class="num">01</div>
+    <h2>Heygo IQ<span class="tag">Your riding score</span></h2>
+    <p class="what">One 0–200 score that sums up how well you ride.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Built from four dimensions — Timing, Pressure, Flow and Similarity — and split into Beginner (0–89), Intermediate (90–129), Advanced (130–169) and Expert (170–200). Better than yesterday? Better than your last run? This number tells you.</dd>
+      <dt>Where to find it</dt><dd class="where">The big card on Home; top-right of every day, run and segment; your all-time best in Profile.</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:2"><div class="row"><figure class="ph"><figcaption>Home · Heygo IQ</figcaption><img src="assets/r-home-en.webp" alt="Home · Heygo IQ" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Heygo IQ Detail</figcaption><img src="assets/r-iq-en.webp" alt="Heygo IQ Detail" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
+</section>
+<section class="feat wide" id="en-run">
+  <div class="txt">
+    <div class="head"><div class="num">02</div>
+    <h2>Run Report<span class="tag">After every run</span></h2>
+    <p class="what">An automatic recap of every run you finish.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>A short summary plus distance, vert, max speed and max edge angle — then what you nailed, how it compares with your last run, Heygo Insight (data → root cause → skills → drills) and drills for you. Tap a drill for a video demo and step-by-step how-to. Check it on the lift and know what to work on next.</dd>
+      <dt>Where to find it</dt><dd class="where">A report card pops up on Go after each run — tap “More”. Or Home → a day → a run.</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>Run Report</figcaption><img src="assets/r-run-en.webp" alt="Run Report" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Heygo Insight</figcaption><img src="assets/r-insight-en.webp" alt="Heygo Insight" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Drill Video</figcaption><img src="assets/r-drill-en.webp" alt="Drill Video" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
+</section>
+<section class="feat" id="en-day">
+  <div class="txt">
+    <div class="head"><div class="num">03</div>
+    <h2>Day Report<span class="tag">Your whole day</span></h2>
+    <p class="what">A wrap-up of your entire day on the mountain.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Total distance, vert, max speed, max edge and your best run; your Heygo IQ spread compared with earlier days; how all four dimensions moved run by run; plus today’s wins, the big issue and what to train next session.</dd>
+      <dt>Where to find it</dt><dd class="where">Home → pick a day in Memories → “Generate Daily Report” (once per day). It also shows up on Go.</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>Day Report</figcaption><img src="assets/r-day3-en.webp" alt="Day Report" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat wide" id="en-segment">
+  <div class="txt">
+    <div class="head"><div class="num">04</div>
+    <h2>Segment Analysis<span class="tag">Turn by turn</span></h2>
+    <p class="what">Every run is split into segments — one stretch of linked turns, until you stop. A segment is the smallest unit Heygo analyzes.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Each segment gets its own Heygo IQ, key stats, a four-dimension radar, best turn shape and turn-by-turn analysis. An AI highlight card tells you what went well, then one thing to try next run. Each run also marks its Best Segment.</dd>
+      <dt>Where to find it</dt><dd class="where">Home → a day → a run → Segments, then tap any segment.</dd>
+    </dl>
+    <div class="note"><b>Knows what you were riding</b><p>Ride switch or carve, and Heygo recognizes it — the matching segments get Switch and Carving tags in the segment list under Run Detail, so you can spot them at a glance.</p></div>
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:2"><div class="row"><figure class="ph"><figcaption>Run Detail · Carving / Switch Tags</figcaption><img src="assets/r-segtags3-en.webp" alt="Run Detail · Carving / Switch Tags" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Segment · Radar</figcaption><img src="assets/r-seg3b-en.webp" alt="Segment · Radar" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
+</section>
+<section class="feat wide" id="en-metrics">
+  <div class="txt">
+    <div class="head"><div class="num">05</div>
+    <h2>Advanced Metrics<span class="tag">4 dimensions · 13 metrics</span></h2>
+    <p class="what">The detail behind Heygo IQ: 13 metrics grouped into four dimensions.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>IQ tells you the score; Advanced Metrics tell you where the points are. Open any dimension to see its metrics and what they mean.</dd>
+      <dt>Where to find it</dt><dd class="where">The radar chart on a segment page — tap any dimension.</dd>
+    </dl>
+    
+    <div class="dims"><div class="dim"><div class="dim-h"><b>Timing</b></div><p>When you engage the new edge</p><ul><li>Early Edging</li><li>Edge Build</li><li>Weight Release</li></ul></div><div class="dim"><div class="dim-h"><b>Pressure</b></div><p>How steadily pressure builds and releases in the turn</p><ul><li>Pressure Control</li><li>G-Force</li><li>Turn Closure</li><li>Rotation Rate</li></ul></div><div class="dim"><div class="dim-h"><b>Flow</b></div><p>How smoothly edge angle and rhythm connect</p><ul><li>Edge Smoothness</li><li>Rhythm</li><li>Turn Shape</li></ul></div><div class="dim"><div class="dim-h"><b>Similarity</b></div><p>How closely toeside matches heelside</p><ul><li>Velocity Similarity</li><li>Edge Angle Similarity</li><li>Turn Radius Similarity</li></ul></div></div>
+  </div>
+  <div class="media"><div class="stage multi" style="--n:4"><div class="row"><figure class="ph"><figcaption>Timing</figcaption><img src="assets/r-m-timing-en.webp" alt="Timing" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Pressure</figcaption><img src="assets/r-m-pressure-en.webp" alt="Pressure" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Flow</figcaption><img src="assets/r-m-flow-en.webp" alt="Flow" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Similarity</figcaption><img src="assets/r-m-similarity-en.webp" alt="Similarity" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe to see all 4 dimensions →</p></div>
+</section>
+<section class="feat" id="en-turn">
+  <div class="txt">
+    <div class="head"><div class="num">06</div>
+    <h2>Turn Shape<span class="tag">Best Turn Shape</span></h2>
+    <p class="what">Draws your most representative toeside and heelside turn from the segment, so you can see its shape at a glance.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Is it a round C? Did you finish the turn? Do toeside and heelside match? Turn Shape is also a metric under Flow, and segments are grouped into small, medium, large and mixed turns.</dd>
+      <dt>Where to find it</dt><dd class="where">Segment page → Best Turn Shape.</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>Best Turn Shape</figcaption><img src="assets/r-seg3-en.webp" alt="Best Turn Shape" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat" id="en-chat">
+  <div class="txt">
+    <div class="head"><div class="num">07</div>
+    <h2>Chatbot<span class="tag">Chat with Heygo Coach</span></h2>
+    <p class="what">An AI snowboard coach you can ask anytime.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>It sees every run and day you’ve ridden, reads your reports and remembers past chats — so answers are about you. Ask “Where did I improve today?”, “Why can’t I finish my heelside turns?” or “What should I work on next run?” and get drills to match.</dd>
+      <dt>Where to find it</dt><dd class="where">The Go tab is the chat. On any day, run or segment, tap “Chat with coach” to ask about that exact ride.</dd>
+    </dl>
+    
+    
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>On the Slope · Coach Chat</figcaption><img src="assets/r-chatride-en.webp" alt="On the Slope · Coach Chat" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="feat wide" id="en-voice">
+  <div class="txt">
+    <div class="head"><div class="num">08</div>
+    <h2>Real-Time Voice<span class="tag">Heygo Voice</span></h2>
+    <p class="what">Put in your earbuds and hear your coach while you ride.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Your coach in your ear — no phone needed. Three modules: Coach helps you fix things as you ride, Updates keep you posted on how you’re doing, and Care looks out for you when you ride alone.</dd>
+      <dt>Where to find it</dt><dd class="where">Start riding from Go. Pick a Coach Mode: Detailed (the most feedback), Brief (only when it matters) or Silent (review after).</dd>
+    </dl>
+    
+    <div class="mods"><div class="mod"><div class="mod-h"><b>Coach</b><span>Fix it while you ride — like a coach beside you</span></div><ul><li><b>Issue call-outs</b>Tells you what’s off and what to try next — after you stop, never mid-turn.</li><li><b>Fixed it</b>The moment you correct it, you hear “that’s it.”</li><li><b>Still there</b>If the same issue keeps coming back, it explains it a different way.</li><li><b>Lift-ride report</b>Reads your last run’s report to you on the chairlift.</li></ul></div><div class="mod"><div class="mod-h"><b>Updates</b><span>Know how you’re doing without looking at your phone</span></div><ul><li><b>Start of ride</b>A quick kickoff so you know recording has started.</li><li><b>Milestones</b>Turns, distance, runs, speed and vert — called out as you hit them.</li><li><b>End-of-run comment</b>One line to sum up every run.</li><li><b>Battery alert</b>A heads-up when your sensors are running low.</li></ul></div><div class="mod"><div class="mod-h"><b>Care</b><span>Riding alone, still looked after</span></div><ul><li><b>Fall check</b>After a fall: “Are you OK?”</li><li><b>Rest reminder</b>Been riding too long? Time for a break.</li></ul></div></div>
+  </div>
+  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>Coach Mode</figcaption><img src="assets/r-voice-en.webp" alt="Coach Mode" loading="lazy" width="398" height="742"></figure></div></div></div>
+</section>
+<section class="issues"><h2>Want to experience Heygo AI Coach first-hand?</h2><p>Try riding like an amateur and make some of the mistakes below (among others). Heygo’s model will pick up these key issues as you ride and give you matching coaching and voice feedback.</p><ol><li>Kicking Back Foot</li><li>Missing Upper Arc</li><li>Late Edge Change</li><li>Unstable Edge</li><li>Edge Judder</li><li>Edge Change Hesitation</li></ol></section>
+</main>
+<footer><img src="assets/device.jpg" alt="" class="dev"><p>Screens shown are design mockups with sample data. The live app may differ slightly.</p><p>© Heygo</p></footer>
+</div><script>
+(function(){
+  var q=new URLSearchParams(location.search).get('lang');
+  var l=q||(/^zh/i.test(navigator.language||'')?'zh':'en');
+  function set(x){document.body.className=x;document.documentElement.lang=x==='zh'?'zh-CN':'en';document.title=x==='zh'?'Heygo 产品功能介绍':'Heygo — Product Features';
+    var u=new URL(location);u.searchParams.set('lang',x);history.replaceState(null,'',u);spy();}
+  document.querySelectorAll('.lang').forEach(function(b){b.onclick=function(){set(b.dataset.to);scrollTo(0,0)}});
+  function spy(){
+    var root=document.querySelector('.lang-'+document.body.className);if(!root)return;
+    var links=root.querySelectorAll('.toc a'),secs=root.querySelectorAll('.feat');
+    var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){var on=a.getAttribute('href')==='#'+en.target.id;a.classList.toggle('on',on);if(on)a.scrollIntoView({block:'nearest',inline:'center'})})}})},{rootMargin:'-45% 0px -50% 0px'});
+    secs.forEach(function(s){io.observe(s)});
+  }
+  set(l==='en'?'en':'zh');
+})();
+</script></body></html>
