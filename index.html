@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heygo 产品功能介绍</title>
-<meta name="description" content="Heygo IQ, Run Report, Day Report, Segment, Advanced Metrics, Turn Shape, Chatbot, Real-Time Voice">
+<meta name="description" content="Heygo IQ, Run Report, Day Report, Segment, Advanced Metrics, Turn Shape, Full Turn Replay, Chatbot, Real-Time Voice">
 <meta property="og:title" content="Heygo 产品功能介绍 | Product Features">
 <meta property="og:description" content="单板 AI 滑雪搭子 · Your AI snowboard buddy">
 <meta property="og:image" content="assets/iq.jpg">
@@ -133,7 +133,7 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
     <div class="chips"><span>目前支持单板滑雪</span></div>
   </div>
 </header>
-<nav class="toc"><a href="#iq">Heygo IQ</a><a href="#run">Run Report</a><a href="#day">Day Report</a><a href="#segment">Segment 分析</a><a href="#metrics">进阶指标</a><a href="#turn">弯型</a><a href="#chat">Chatbot</a><a href="#voice">实时语音</a></nav>
+<nav class="toc"><a href="#iq">Heygo IQ</a><a href="#run">Run Report</a><a href="#day">Day Report</a><a href="#segment">Segment 分析</a><a href="#metrics">进阶指标</a><a href="#turn">弯型</a><a href="#track">完整弯型复现</a><a href="#chat">Chatbot</a><a href="#voice">实时语音</a></nav>
 <main>
 <p class="tabs">App 三个入口：首页（回看每天每趟）· Go（滑行 + 对话）· 我的（个人数据）</p>
 
@@ -221,9 +221,23 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
   </div>
   <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>最佳弯形</figcaption><img src="assets/r-seg3-zh.webp" alt="最佳弯形" loading="lazy" width="398" height="742"></figure></div></div></div>
 </section>
-<section class="feat" id="chat">
+<section class="feat wide" id="track">
   <div class="txt">
     <div class="head"><div class="num">07</div>
+    <h2>完整弯型复现<span class="tag">每个弯都能回放</span></h2>
+    <p class="what">把一整段滑行里的每一个弯，按真实形状完整还原成一条轨迹。别人记录你滑了多远，Heygo 还原你是怎么滑的。</p></div>
+    <dl>
+      <dt>怎么用</dt><dd>指标直接画在弯上：颜色沿着每个弯逐点变化。「立刃角度」视图看刃在每个弯里怎么立起来、哪里最深；切到「侧向离心力」，看哪些弯吃住了雪、哪些弯是搓过去的。打开「换刃时刻」「立刃峰值」标记，每个弯在哪里换刃、哪里立得最深一目了然；点任意一个弯，显示它是前刃还是后刃，以及最高时速、最大立刃、转弯半径或最大 G 力。双指放大，可以一个弯一个弯地看。</dd>
+      <dt>在哪里</dt><dd class="where">每趟报告下方的「第 N 趟最佳轨迹」卡片 → 「查看本段轨迹」，展示这一趟 Heygo IQ 最高的片段。</dd>
+    </dl>
+    <div class="note"><b>从结果到过程</b><p>不只告诉你这一段多少分，而是让你看见分数是在哪个弯、哪个阶段丢的：前几个弯立刃浅、后半段越来越深，还是前刃弯吃得住、后刃弯总在搓，轨迹上都看得出来。</p></div>
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>整段轨迹 · 立刃角度</figcaption><img src="assets/r-track1-zh.webp" alt="整段轨迹 · 立刃角度" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>点一个弯 · 看这个弯的数据</figcaption><img src="assets/r-track2-zh.webp" alt="点一个弯 · 看这个弯的数据" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>切换侧向离心力</figcaption><img src="assets/r-track3-zh.webp" alt="切换侧向离心力" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
+</section>
+<section class="feat" id="chat">
+  <div class="txt">
+    <div class="head"><div class="num">08</div>
     <h2>Chatbot<span class="tag">Heygo 教练对话</span></h2>
     <p class="what">随时可以问的 AI 滑雪教练。</p></div>
     <dl>
@@ -237,7 +251,7 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
 </section>
 <section class="feat wide" id="voice">
   <div class="txt">
-    <div class="head"><div class="num">08</div>
+    <div class="head"><div class="num">09</div>
     <h2>实时语音<span class="tag">Heygo 语音功能</span></h2>
     <p class="what">滑行中戴上耳机，实时听到教练的声音。</p></div>
     <dl>
@@ -261,7 +275,7 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
     <div class="chips"><span>Snowboarding only for now</span></div>
   </div>
 </header>
-<nav class="toc"><a href="#en-iq">Heygo IQ</a><a href="#en-run">Run Report</a><a href="#en-day">Day Report</a><a href="#en-segment">Segment Analysis</a><a href="#en-metrics">Advanced Metrics</a><a href="#en-turn">Turn Shape</a><a href="#en-chat">Chatbot</a><a href="#en-voice">Real-Time Voice</a></nav>
+<nav class="toc"><a href="#en-iq">Heygo IQ</a><a href="#en-run">Run Report</a><a href="#en-day">Day Report</a><a href="#en-segment">Segment Analysis</a><a href="#en-metrics">Advanced Metrics</a><a href="#en-turn">Turn Shape</a><a href="#en-track">Full Turn Replay</a><a href="#en-chat">Chatbot</a><a href="#en-voice">Real-Time Voice</a></nav>
 <main>
 <p class="tabs">Three tabs: Home (look back at every day and run) · Go (ride + chat) · Profile (your stats)</p>
 
@@ -349,9 +363,23 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
   </div>
   <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>Best Turn Shape</figcaption><img src="assets/r-seg3-en.webp" alt="Best Turn Shape" loading="lazy" width="398" height="742"></figure></div></div></div>
 </section>
-<section class="feat" id="en-chat">
+<section class="feat wide" id="en-track">
   <div class="txt">
     <div class="head"><div class="num">07</div>
+    <h2>Full Turn Replay<span class="tag">Replay every turn</span></h2>
+    <p class="what">Rebuilds every turn of a segment, in its real shape, as one continuous track. Others record how far you rode — Heygo replays how you rode.</p></div>
+    <dl>
+      <dt>How it helps</dt><dd>Metrics are drawn right on the turns: color changes point by point along each one. Edge Angle view shows how your edge builds through every turn and where it peaks; switch to Lateral G to see which turns gripped and which ones skidded. Turn on Edge Change and Peak Edge markers to see where each turn switches edges and where the edge is deepest. Tap any turn for toeside or heelside, top speed, max edge, and turn radius or max G. Pinch to zoom and go turn by turn.</dd>
+      <dt>Where to find it</dt><dd class="where">Under each Run Report: the “Run N · Best track” card → “View this segment”. It opens the segment with your highest Heygo IQ in that run.</dd>
+    </dl>
+    <div class="note"><b>From score to story</b><p>Not just what the segment scored, but which turn — and which part of it — cost you points: shallow edges early and deeper later, or toeside turns that grip while heelside ones skid. It all shows on the track.</p></div>
+    
+  </div>
+  <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>Full Track · Edge Angle</figcaption><img src="assets/r-track1-en.webp" alt="Full Track · Edge Angle" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Tap a Turn · Its Numbers</figcaption><img src="assets/r-track2-en.webp" alt="Tap a Turn · Its Numbers" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Lateral G View</figcaption><img src="assets/r-track3-en.webp" alt="Lateral G View" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
+</section>
+<section class="feat" id="en-chat">
+  <div class="txt">
+    <div class="head"><div class="num">08</div>
     <h2>Chatbot<span class="tag">Chat with Heygo Coach</span></h2>
     <p class="what">An AI snowboard coach you can ask anytime.</p></div>
     <dl>
@@ -365,7 +393,7 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
 </section>
 <section class="feat wide" id="en-voice">
   <div class="txt">
-    <div class="head"><div class="num">08</div>
+    <div class="head"><div class="num">09</div>
     <h2>Real-Time Voice<span class="tag">Heygo Voice</span></h2>
     <p class="what">Put in your earbuds and hear your coach while you ride.</p></div>
     <dl>
