@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heygo 俱乐部设备管理台 · Demo</title>
+<link rel="icon" href="assets/heygo-app-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer"></aside>
+  <div class="modal" id="modal"></div>
+  <div id="toasts"></div>
+
+  <div id="demobar">
+    <span class="lb">DEMO</span>
+    <div class="sw">
+      <button data-mode="club">俱乐部端</button>
+      <button data-mode="admin">dev-portal 配置端</button>
+    </div>
+    <button class="rst" id="resetDemo">重置演示数据</button>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

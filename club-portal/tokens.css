@@ -1,0 +1,63 @@
+/* ============================================================
+   Heygo DS · Web 端 token 层
+   原始色值 1:1 搬自 app_flutter/lib/core/theme/app_palette.dart
+   （其自述来源：Figma「Heygo Design system」file LTpDOPTsR2LAUU4b9yKYs8 · Color 页 238:2347）
+   语义映射参照同目录 app_colors.dart。
+   阴影取自 DS 仅有的两条 effect style（list shadow 98:1976 / card shadow 634:112）。
+   —— 本文件只做「Flutter token → CSS 变量」的搬运，不新造颜色。
+      标 [本站补] 的是 DS 里缺口、为 Web 控制台补的派生值，需设计确认。
+   ============================================================ */
+:root{
+  /* —— 品牌 —— */
+  --primary:        #28F5D2;   /* 薄荷青：只作填充底，其上文字必须用 --on-primary */
+  --on-primary:     #1A1A1A;
+  --secondary:      #B1FE2B;   /* 柠檬绿 */
+
+  /* —— 中性 / 背景 —— */
+  --white:          #FFFFFF;
+  --background:     #E7F1F9;   /* 浅蓝灰页面底 */
+  --slate-100:      #F1F5F9;
+
+  /* —— 文字 —— */
+  --text-black:     #1A1A1A;
+  --text-grey-01:   #557288;
+  --text-grey-02:   #62748E;
+
+  /* —— 灰阶 —— */
+  --grey-200:       #B3C1D5;
+  --grey-300:       #90A1B9;
+
+  /* —— blue —— */
+  --blue-50:        #F7FBFF;
+  --blue-100:       #EEF5FE;
+  --blue-500:       #D0EBFF;
+  --blue-700:       #5DADF1;
+  --blue-900:       #2343DB;   /* 白底上唯一可做文字的蓝：链接 / 强调 */
+
+  /* —— green / orange / red —— */
+  --green-100:      #F0FDF4;
+  --green-300:      #DCFCE7;
+  --green-600:      #6BD18B;
+  --orange-100:     #FFFBEB;
+  --orange-300:     #FEF3C6;
+  --orange-800:     #FF9501;
+  --orange-900:     #E17100;
+  --red:            #FE5D65;
+
+  /* —— [本站补] 由 DS 色加透明度派生，仅用于线与弱底 —— */
+  --line:           rgba(179,193,213,.52);   /* grey200 52% */
+  --line-soft:      rgba(179,193,213,.28);   /* grey200 28% */
+  --primary-soft:   rgba(40,245,210,.16);
+  --red-soft:       rgba(254,93,101,.13);
+  --overlay:        rgba(26,26,26,.42);
+
+  /* —— 阴影（DS effect styles） —— */
+  --shadow-list:    0 10px 30px #E0ECF6, 0 2px 8px rgba(143,163,184,.08);
+  --shadow-card:    0 8px 16px rgba(119,140,156,.16);
+  --shadow-float:   0 24px 64px rgba(119,140,156,.34);  /* [本站补] 模态/抽屉，DS 无对应 */
+
+  /* —— 形状 —— */
+  --r:              12px;
+  --r-sm:           8px;
+  --mono: ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
