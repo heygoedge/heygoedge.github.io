@@ -80,10 +80,10 @@ a{color:var(--link);text-decoration:none}
 
 table.tbl{width:100%;border-collapse:collapse}
 table.tbl th{
-  text-align:left;font-size:12px;font-weight:600;color:var(--ink-3);padding:10px 16px;
+  text-align:center;font-size:12px;font-weight:600;color:var(--ink-3);padding:10px 16px;
   background:var(--blue-50);border-bottom:1px solid var(--line);white-space:nowrap;
 }
-table.tbl td{padding:13px 16px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+table.tbl td{padding:13px 16px;border-bottom:1px solid var(--line-soft);vertical-align:middle;text-align:center}
 table.tbl tr:last-child td{border-bottom:0}
 table.tbl tbody tr:hover{background:var(--blue-50)}
 .empty{padding:52px 16px;text-align:center;color:var(--ink-3)}
@@ -191,10 +191,10 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
 .segs button{border:0;background:transparent;height:30px;padding:0 12px;border-radius:7px;cursor:pointer;color:var(--ink-2);font-size:13px}
 .segs button.on{background:var(--white);color:var(--ink);font-weight:600;box-shadow:var(--shadow-card)}
 
-.sn-cell .pair{display:flex;gap:8px;align-items:center;margin-bottom:2px}
+.sn-cell .pair{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:2px}
 .sn-cell .tag{font-size:10.5px;color:var(--ink-3);background:var(--slate-100);border-radius:4px;padding:1px 5px;font-weight:600;width:22px;text-align:center;flex:none}
 .sn-cell .name{font-weight:600;font-size:13px;margin-bottom:5px}
-.row-acts{display:flex;gap:12px;align-items:center;justify-content:flex-end;white-space:nowrap}
+.row-acts{display:flex;gap:12px;align-items:center;justify-content:center;white-space:nowrap}
 .row-acts .btn-link{white-space:nowrap}
 .warn-inline{display:inline-flex;align-items:center;gap:5px;color:var(--orange-900);font-size:12px;margin-top:4px}
 
@@ -283,7 +283,7 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
 .pw-show .v{font-family:var(--mono);font-size:17px;letter-spacing:.6px}
 
 /* ---------- 列表里的绑定记录 ---------- */
-.bind-line{display:flex;align-items:center;gap:7px;padding:2px 0;min-width:0}
+.bind-line{display:flex;align-items:center;justify-content:center;gap:7px;padding:2px 0;min-width:0}
 .bind-line .em{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bind-line .feet{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none}
 
@@ -319,3 +319,129 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
   font-size:12.5px;cursor:pointer;color:var(--ink-2);transition:all .14s}
 .chip:hover{border-color:var(--grey-200);background:var(--blue-50);color:var(--ink)}
 .chip.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
+
+/* ---------- 出示二维码弹窗 ---------- */
+.qr-big{width:232px;height:232px;margin:4px auto 0;border-radius:14px;border:1px solid var(--line);
+  background:repeating-conic-gradient(var(--grey-200) 0% 25%, var(--white) 0% 50%) 0 0/20px 20px;
+  display:grid;place-items:center;overflow:hidden}
+.qr-big span{background:rgba(255,255,255,.94);font-size:12px;color:var(--ink-3);padding:5px 10px;border-radius:6px}
+
+/* ============================================================
+   移动端适配
+   手机上前台只做两件事：看哪副能借、把码亮出来 / 把设备收回来。
+   所以：侧栏压成顶部两行、设备表换成卡片、链接型操作换成能点的按钮、
+   弹窗走底部抽屉。其余表格保留表头横向滚动，不强行拆。
+   ============================================================ */
+.login-mini-brand{display:none}
+.tbl-scroll{width:100%}
+
+@media (max-width:760px){
+  /* ---- 登录 ---- */
+  .login-form{width:100%;padding:28px 20px}
+  .login-box{max-width:none}
+  .login-mini-brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+  .login-mini-brand .wordmark{height:20px;color:var(--text-black)}
+  .login-mini-brand span:last-child{font-size:13px;color:var(--ink-3)}
+
+  /* ---- 框架：侧栏压成顶部 ---- */
+  #shell{flex-direction:column}
+  .side{position:sticky;top:0;z-index:30;width:100%;height:auto;border-right:0;
+    border-bottom:1px solid var(--line);flex-direction:column;position:relative}
+  .side .brand{padding:12px 14px 10px;border-bottom:0}
+  .brand .n{font-size:14px}
+  .entity-chip{margin:0 14px 10px;padding:9px 11px}
+  .entity-chip .l{display:none}
+  .entity-chip .v{font-size:13.5px}
+  .nav{display:flex;gap:6px;padding:0 10px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nav a{flex:1;justify-content:center;margin:0;white-space:nowrap;padding:10px 12px;font-size:13px}
+  .nav a.on::before{display:none}
+  .nav a .cnt{margin-left:4px}
+  /* 账号与退出收到右上角，不单独占一行 */
+  .side .user{position:absolute;top:10px;right:12px;border-top:0;padding:0;gap:6px;background:transparent}
+  .side .user > div{display:none}
+  .avatar{width:28px;height:28px;font-size:11px}
+
+  /* ---- 内容区 ---- */
+  .topbar{position:static;height:auto;padding:14px 16px 10px;background:transparent;
+    backdrop-filter:none;border-bottom:0}
+  .topbar h2{font-size:17px}
+  .page{padding:0 16px 96px}
+
+  .stats,.stats-3{grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .stat{padding:11px 10px;border-radius:10px}
+  .stat .l{font-size:11.5px;gap:4px}
+  .stat .l svg{display:none}
+  .stat .v{font-size:21px;margin-top:3px}
+  .stat .v small{font-size:11px}
+  .stat-warn{display:block;margin:5px 0 0;font-size:11px}
+
+  .toolbar{gap:8px}
+  .search{max-width:none;min-width:0;width:100%}
+  .segs{width:100%}
+  .segs button{flex:1}
+  .toolbar .spacer,.toolbar > .hint{display:none}
+
+  /* ---- 设备表 → 卡片 ---- */
+  table.tbl-cards thead{display:none}
+  table.tbl-cards,table.tbl-cards tbody,table.tbl-cards tr,table.tbl-cards td{display:block;width:auto}
+  table.tbl-cards tr{padding:14px 14px 12px;border-bottom:1px solid var(--line)}
+  table.tbl-cards tr:last-child{border-bottom:0}
+  table.tbl-cards tbody tr:hover{background:transparent}
+  table.tbl-cards td{border:0;padding:0;min-width:0 !important;text-align:center}
+  table.tbl-cards td + td{margin-top:9px}
+  table.tbl-cards .sn-cell .name{font-size:14px}
+  /* 操作从文字链变成能点的按钮 */
+  table.tbl-cards .row-acts{flex-wrap:wrap;gap:8px;margin-top:12px}
+  table.tbl-cards .row-acts .btn-link{flex:1 1 128px;border:1px solid var(--line);border-radius:9px;
+    padding:11px 12px;background:var(--white);color:var(--link);font-size:14px}
+  table.tbl-cards .row-acts .btn-link:hover{text-decoration:none;background:var(--blue-50)}
+  table.tbl-cards .row-acts .btn-link b{font-weight:600}
+
+  /* ---- 其余表格：保留表头，横向滚动 ---- */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl-scroll table.tbl{min-width:640px}
+
+  /* ---- 管理端 ---- */
+  .two-col{grid-template-columns:1fr}
+  .two-col > *{min-width:0}          /* grid item 默认 min-width:auto，会被 640px 的表撑开 */
+  .ent-list{display:flex;gap:8px;overflow-x:auto;padding:8px}
+  .ent-list .it{flex:0 0 auto;min-width:168px}
+  .card-h{flex-wrap:wrap}
+
+  /* ---- 弹窗走底部抽屉 ---- */
+  .modal{left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;
+    border-radius:16px 16px 0 0;transform:translateY(100%)}
+  .modal.on{transform:translateY(0)}
+  .modal.wide{width:100%}
+  .modal-b{max-height:56vh;padding:16px}
+  .modal-h{padding:18px 16px 0}
+  .modal-f{padding:12px 16px calc(14px + env(safe-area-inset-bottom));gap:8px}
+  .modal-f .btn{flex:1;height:44px}
+  .chips .chip{flex:1 1 calc(50% - 4px);text-align:center}
+  .qr-big{width:min(232px,62vw);height:min(232px,62vw)}
+
+  /* ---- 抽屉全屏 ---- */
+  .drawer{width:100%;max-width:none}
+  .drawer-f{flex-direction:column;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+  .drawer-f .btn{width:100%;height:44px}
+
+  /* ---- 演示控制条 ---- */
+  /* 弹窗/抽屉打开时，底部控制条让位，否则会压住确认按钮 */
+  body.overlay-open #demobar{display:none}
+  #demobar{bottom:calc(10px + env(safe-area-inset-bottom));padding:5px 6px;gap:4px;max-width:calc(100vw - 20px)}
+  #demobar .lb{display:none}
+  #demobar .sw{flex:none}
+  #demobar .sw button{height:30px;padding:0 10px;font-size:11.5px;white-space:nowrap}
+  #demobar .rst{font-size:11.5px;padding:0 6px;white-space:nowrap}
+
+  /* ---- 操作记录里的作业卡 ---- */
+  .op-card{flex-direction:column;align-items:stretch;gap:10px}
+  .op-card .btn{width:100%;height:40px}
+}
+
+/* 窄屏（iPhone SE 一类） */
+@media (max-width:380px){
+  .stats,.stats-3{grid-template-columns:repeat(2,1fr)}
+  .stats .stat:last-child{grid-column:span 2}
+  table.tbl-cards .row-acts .btn-link{flex:1 1 100%}
+}

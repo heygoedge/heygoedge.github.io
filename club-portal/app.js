@@ -127,16 +127,21 @@ function toast(msg, kind='ok'){
 }
 
 /* ---------- 模态 / 抽屉 ---------- */
-function openModal(html){ $('#modal').innerHTML = html; $('#modal').classList.add('on'); $('#scrim').classList.add('on'); }
+/* 手机上弹窗贴底，会被底部的演示控制条压住，所以打开覆盖层时给 body 打标记 */
+const syncOverlay = ()=> document.body.classList.toggle('overlay-open',
+  $('#modal').classList.contains('on') || $('#drawer').classList.contains('on'));
+function openModal(html){ $('#modal').innerHTML = html; $('#modal').classList.add('on'); $('#scrim').classList.add('on'); syncOverlay(); }
 function closeModal(){
   const m=$('#modal'); m.classList.remove('on');
   if(!$('#drawer').classList.contains('on')) $('#scrim').classList.remove('on');
+  syncOverlay();
   setTimeout(()=>{ if(!m.classList.contains('on')) m.innerHTML=''; }, 220);
 }
-function openDrawer(html){ $('#drawer').innerHTML = html; $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); }
+function openDrawer(html){ $('#drawer').innerHTML = html; $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); syncOverlay(); }
 function closeDrawer(){
   const dr=$('#drawer'); dr.classList.remove('on');
   if(!$('#modal').classList.contains('on')) $('#scrim').classList.remove('on');
+  syncOverlay();
   setTimeout(()=>{ if(!dr.classList.contains('on')) dr.innerHTML=''; }, 260);
 }
 $('#scrim').addEventListener('click', ()=>{ closeModal(); closeDrawer(); });
@@ -177,6 +182,7 @@ function renderLogin(err){
       <div class="foot">本页面为演示原型，数据均为虚构 · ${esc(now())}</div>
     </div>
     <div class="login-form"><div class="login-box">
+      <div class="login-mini-brand"><span class="wordmark">${LOGO}</span><span>俱乐部设备管理台</span></div>
       <h2>登录</h2>
       <p class="lead">使用 Heygo 分配给你的账号登录</p>
       ${err?`<div class="login-err">${esc(err)}</div>`:''}
@@ -301,7 +307,7 @@ function renderDevices(){
         ${op?`<div class="hint" style="margin-top:4px;display:inline-flex;gap:5px;align-items:center">${ic('spin',12)} 正在处理</div>`:''}
       </td>
       <td style="min-width:210px">${bindingLines(d)}</td>
-      <td style="text-align:right;min-width:244px"><div class="row-acts">${rowActions(d)}</div></td>
+      <td style="min-width:244px"><div class="row-acts">${rowActions(d)}</div></td>
     </tr>`;
   }).join('');
 
@@ -321,8 +327,8 @@ function renderDevices(){
         <div><b>该 SN 不在 ${esc(e.name)} 的授权范围内</b><div style="margin-top:3px">
         <span class="code-inline">${esc(denied)}</span> 不在本主体的可操作设备清单里，无法查询或操作。如确认该设备属于贵方，请联系 Heygo 对接人开通授权。</div></div></div>`:''}
     <div class="card">
-      <table class="tbl">
-        <thead><tr><th>设备</th><th>状态</th><th>当前使用人</th><th style="text-align:right">操作</th></tr></thead>
+      <table class="tbl tbl-cards">
+        <thead><tr><th>设备</th><th>状态</th><th>当前使用人</th><th>操作</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
       ${list.length?'':`<div class="empty"><div class="big">没有匹配的设备</div><div>换个 SN 短号试试，或切换上方筛选</div></div>`}
@@ -343,6 +349,8 @@ function rowActions(d){
   if (liveOpOf(d)) a.push(`<span class="muted" style="display:inline-flex;gap:5px;align-items:center">${ic('spin',13)} 处理中</span>`);
   else if (failedOpOf(d)) a.push(`<button class="btn-link" data-act="ops" data-id="${d.id}"><b>去重试</b></button>`);
   else if (!d.box.released) a.push(`<button class="btn-link" data-act="reset" data-id="${d.id}"><b>解绑并重置</b></button>`);
+  /* 可扫码时最常做的事就是把码亮给客人，直接放在行上，不用进详情 */
+  else a.push(`<button class="btn-link" data-act="qr" data-id="${d.id}"><b>${ic('qr',13)} 出示二维码</b></button>`);
   a.push(`<button class="btn-link" data-act="detail" data-id="${d.id}">详情</button>`);
   return a.join('');
 }
@@ -350,7 +358,7 @@ function bindRowActions(){
   $$('[data-act]').forEach(b=>b.onclick=ev=>{
     ev.stopPropagation();
     const d = deviceById(b.dataset.id);
-    ({ reset:askReset, detail:showDetail, ops:()=>{ location.hash='#/logs'; } })[b.dataset.act](d);
+    ({ reset:askReset, detail:showDetail, qr:showQr, ops:()=>{ location.hash='#/logs'; } })[b.dataset.act](d);
   });
 }
 
@@ -446,6 +454,28 @@ function retryOp(op){
   scheduleOp(op.id);
 }
 
+/* ---------- 出示二维码 ----------
+   真二维码由后端 / dev-portal 渲染（dev-portal 用 qrcode.react，level H，中心嵌 logo，
+   可下载 PNG）。这里只放占位，demo 不引入编码库。 */
+function showQr(d){
+  openModal(`
+    <div class="modal-h"><h3>扫码使用</h3>
+      <p>让客人用 Heygo App 扫这个码，即可开始使用这副设备。</p></div>
+    <div class="modal-b" style="text-align:center">
+      <div class="qr-big"><span>二维码占位</span></div>
+      <div class="mono" style="font-size:13px;word-break:break-all;margin-top:14px">${esc(d.box.code)}</div>
+      <div class="hint" style="margin-top:4px">${esc(d.model)} · ${esc(d.leftSn.slice(-6))} / ${esc(d.rightSn.slice(-6))}</div>
+      <button class="btn btn-sm" style="margin-top:12px" data-copy="${esc(d.box.code)}">复制盒码</button>
+      <div class="note note-blue" style="margin-top:16px;text-align:left">${ic('alert',16)}
+        <div>扫完之后这副设备会变成「绑定中」。客人还板时，在列表里点「解绑并重置」收回即可。</div></div>
+    </div>
+    <div class="modal-f"><button class="btn btn-primary" id="mCancel">知道了</button></div>`);
+  $('#mCancel').onclick = closeModal;
+  $$('[data-copy]').forEach(b=>b.onclick=()=>{
+    navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('已复制到剪贴板')).catch(()=>toast('复制失败','err'));
+  });
+}
+
 /* ---------- 设备详情抽屉 ---------- */
 function showDetail(d){
   const s = devState(d);
@@ -473,7 +503,10 @@ function showDetail(d){
           <div class="hint" style="margin:0 0 4px">盒码 / 二维码内容</div>
           <div class="mono" style="font-size:13px;word-break:break-all">${esc(d.box.code)}</div>
           <div class="hint" style="margin-top:6px">${d.box.released?'可扫码':'未释放，下一位扫不了'}</div>
-          <button class="btn btn-sm" style="margin-top:9px" data-copy="${esc(d.box.code)}">复制盒码</button>
+          <div style="display:flex;gap:8px;margin-top:9px">
+            ${d.box.released?'<button class="btn btn-sm btn-brand" data-dact="qr">出示二维码</button>':''}
+            <button class="btn btn-sm" data-copy="${esc(d.box.code)}">复制盒码</button>
+          </div>
         </div></div>
 
       <div class="sec-t">当前使用人（${d.bindings.length}）</div>
@@ -510,7 +543,7 @@ function showDetail(d){
     navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('已复制到剪贴板')).catch(()=>toast('复制失败','err'));
   });
   $$('[data-dact]').forEach(b=>b.onclick=()=>{ closeDrawer();
-    askReset(d); });
+    (b.dataset.dact==='qr' ? showQr : askReset)(d); });
 }
 
 /* ============================================================
@@ -557,9 +590,9 @@ function renderClubLogs(){
     </div>
     <div class="note note-blue" style="margin-bottom:14px">${ic('shield',16)}
       <div>解绑与盒码重置会影响终端用户的数据归属，因此每一次操作都会记录操作人、时间、对象、原因与结果，Heygo 侧可追溯。</div></div>
-    <div class="card"><table class="tbl">
+    <div class="card"><div class="tbl-scroll"><table class="tbl">
       <thead><tr><th>时间</th><th>操作人</th><th>动作</th><th>设备</th><th>说明</th><th>结果</th></tr></thead>
-      <tbody>${rows}</tbody></table>
+      <tbody>${rows}</tbody></table></div>
       ${rows?'':'<div class="empty"><div class="big">暂无操作记录</div></div>'}
     </div>`);
   $('#refreshOps').onclick = ()=>route();
@@ -615,14 +648,14 @@ function adminEntities(){
       <td>${esc(e.contact)}<div class="hint mono">${esc(e.phone)}</div></td>
       <td class="mono">${accs.length} 个</td>
       <td class="mono">${ds.length} 副 / ${ds.length*2} 个 SN</td>
-      <td style="text-align:right"><button class="btn-link" data-ent="${e.id}">管理设备授权</button></td>
+      <td><button class="btn-link" data-ent="${e.id}">管理设备授权</button></td>
     </tr>`;
   }).join('');
   adminShell('entities','主体管理','俱乐部 / 公司是账号与设备授权的归属单位，一个主体可以有多个登录账号', `
     <div class="toolbar"><div class="spacer"></div><button class="btn btn-brand btn-sm" id="newEnt">${ic('plus',14)} 新建主体</button></div>
-    <div class="card"><table class="tbl">
+    <div class="card"><div class="tbl-scroll"><table class="tbl">
       <thead><tr><th>主体</th><th>类型</th><th>联系人</th><th>账号</th><th>授权设备</th><th></th></tr></thead>
-      <tbody>${rows}</tbody></table></div>
+      <tbody>${rows}</tbody></table></div></div>
     <div class="note note-blue" style="margin-top:14px">${ic('shield',16)}<div>
       <b>授权唯一性：</b>一副设备同一时间只能归属一个主体。把它授权给新主体前，必须先从原主体移除，避免两家俱乐部同时能解绑同一副设备。</div></div>`);
   $$('[data-ent]').forEach(b=>b.onclick=()=>{ adminSel.entityId=b.dataset.ent; location.hash='#/admin/devices'; });
@@ -673,16 +706,16 @@ function adminAccounts(){
       <td>${a.status==='active'?'<span class="pill pill-green"><span class="dot"></span>启用</span>':'<span class="pill pill-grey"><span class="dot"></span>已停用</span>'}</td>
       <td class="mono hint">${esc(a.createdAt)}</td>
       <td class="mono hint">${esc(a.lastLogin)}</td>
-      <td style="text-align:right"><div class="row-acts">
+      <td><div class="row-acts">
         <button class="btn-link" data-pw="${a.id}">重置密码</button>
         <button class="btn-link ${a.status==='active'?'danger':''}" data-tg="${a.id}">${a.status==='active'?'停用':'启用'}</button>
       </div></td></tr>`;
   }).join('');
   adminShell('accounts','账号管理','每个账号固定归属一个主体；账号不支持自助改密，只能由 Heygo 重置', `
     <div class="toolbar"><div class="spacer"></div><button class="btn btn-brand btn-sm" id="newAcc">${ic('plus',14)} 开通账号</button></div>
-    <div class="card"><table class="tbl">
+    <div class="card"><div class="tbl-scroll"><table class="tbl">
       <thead><tr><th>登录账号</th><th>所属主体</th><th>状态</th><th>创建时间</th><th>最近登录</th><th></th></tr></thead>
-      <tbody>${rows}</tbody></table></div>
+      <tbody>${rows}</tbody></table></div></div>
     <div class="note note-amber" style="margin-top:14px">${ic('alert',16)}<div>
       <b>停用即时生效：</b>俱乐部人员离职时停用账号，该账号的会话应在下一次请求时被拒绝。历史操作记录保留。</div></div>`);
   $$('[data-pw]').forEach(b=>b.onclick=()=>{ const a=accountById(b.dataset.pw); const p=genPwd(); a.password=p; save(); showPwd(a,p,false); });
@@ -730,7 +763,7 @@ function adminDevices(){
         <div class="hint" style="margin-top:3px">${d.box.released?'可扫码':'未释放'}</div></td>
       <td><span class="pill ${s.c}"><span class="dot"></span>${s.t}</span></td>
       <td>${d.bindings.length?`${d.bindings.length} 条`:'<span class="muted">—</span>'}</td>
-      <td style="text-align:right"><button class="btn-link danger" data-rm="${d.id}">移除授权</button></td></tr>`;
+      <td><button class="btn-link danger" data-rm="${d.id}">移除授权</button></td></tr>`;
   }).join('');
 
   adminShell('devices','设备授权', `为主体配置可操作的设备；俱乐部端的搜索与操作范围严格以此为准`, `
@@ -740,8 +773,8 @@ function adminDevices(){
         <div class="card">
           <div class="card-h"><div><h3>${esc(sel.name)}</h3><div class="sub">已授权 ${mine.length} 副（${mine.length*2} 个 SN）· 系统内未分配 ${unassigned} 副</div></div>
             <button class="btn btn-brand btn-sm" id="addSn">${ic('plus',14)} 批量添加 SN</button></div>
-          <table class="tbl"><thead><tr><th>设备 SN（出厂配对）</th><th>盒码</th><th>状态</th><th>绑定账号</th><th></th></tr></thead>
-            <tbody>${rows}</tbody></table>
+          <div class="tbl-scroll"><table class="tbl"><thead><tr><th>设备 SN（出厂配对）</th><th>盒码</th><th>状态</th><th>绑定账号</th><th></th></tr></thead>
+            <tbody>${rows}</tbody></table></div>
           ${mine.length?'':'<div class="empty"><div class="big">该主体还没有授权任何设备</div><div>点右上角批量添加 SN</div></div>'}
         </div>
         <div class="note note-amber" style="margin-top:14px">${ic('alert',16)}<div>
@@ -827,9 +860,9 @@ function adminAudit(){
       <td>${esc(l.detail)}</td><td>${res}</td></tr>`;
   }).join('');
   adminShell('audit','操作审计','所有主体的操作流水，按时间倒序', `
-    <div class="card"><table class="tbl">
+    <div class="card"><div class="tbl-scroll"><table class="tbl">
       <thead><tr><th>时间</th><th>主体</th><th>操作人</th><th>动作</th><th>设备</th><th>说明</th><th>结果</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`);
+      <tbody>${rows}</tbody></table></div></div>`);
 }
 
 /* ============================================================
