@@ -51,12 +51,18 @@ const now = () => {
 /* ---------- 口径常量（与 dev-portal 一致） ---------- */
 /* 前缀不固定：1–52 位任意字母数字 + 6 位日期码 + L/R + 5 位序号 */
 const SN_RE = /^[A-Z0-9]{1,52}[0-9]{6}[LR][0-9]{5}$/;
-/* 设备状态只有这四个（用户 2026-10-27 定）：
-     可扫码        盒码可用、从未被绑过
-     绑定中        有账号绑在上面
-     已解绑        解绑完成且盒码已重置，可以再扫
-     已解绑待重置   绑定已解除，但盒码还被原账号占着，扫不了
-   不用「领取 / 可借出」这类说法，也不并存国际版与中国区。 */
+/* 设备状态只有两个（用户 2026-10-28 定）：
+     可扫码   盒码已释放，可以交给下一位
+     绑定中   盒码未释放，还占着
+
+   关键：状态按「盒码有没有释放」推，不按「有没有绑定记录」推。
+   因为"零绑定但盒码仍被占用"是后端真实会出现的状态，至少两条路径会产生它 ——
+     ① C 端用户在 App 里自己解绑（backend-go internal/devices/handler.go:437
+        的 unbind 只删绑定行，完全不碰盒码）
+     ② 重置作业失败，盒码停在未释放
+   这两种情况按绑定数算会显示成"可扫码"，交出去就是一张扫不了码的工单。
+
+   作业进行中、作业失败都仍然是「绑定中」，不额外占状态名。 */
 const OP_STATUS = {
   running:   { t:'正在处理', c:'pill-amber' },
   succeeded: { t:'已完成',   c:'pill-green' },
@@ -70,7 +76,7 @@ const OP_ERROR = {
   PREVIEW_CHANGED:'数据已变化，请重新预览。',
   OPERATION_PENDING:'这对设备已有未完成操作。'
 };
-const ACTION_TXT = { reset:'解绑并重置', unbind:'解除绑定', search:'搜索', login:'登录', config:'配置变更' };
+const ACTION_TXT = { reset:'解绑并重置', unbind:'解除绑定（历史）', search:'搜索', login:'登录', config:'配置变更' };
 
 /* 逐字符顺序模糊匹配：L125 命中 L00125（dev-portal 的 snSearchHint） */
 function subseq(q, target){
@@ -100,13 +106,9 @@ const devicesOf = eid => DB.devices.filter(d=>d.entityId===eid);
 const liveOpOf = d => DB.operations.find(o=>o.deviceId===d.id && o.status==='running');
 const failedOpOf = d => DB.operations.find(o=>o.deviceId===d.id && o.status==='failed');
 
-/* 设备状态：绑定数 × 盒码是否释放 × 是否绑过，外加在途作业 */
 function devState(d){
-  if (liveOpOf(d))        return { t:'处理中',      c:'pill-amber', k:'busy'  };
-  if (d.bindings.length)  return { t:'绑定中',      c:'pill-blue',  k:'bound' };
-  if (!d.box.released)    return { t:'已解绑待重置', c:'pill-red',   k:'held'  };
-  if (d.everBound)        return { t:'已解绑',      c:'pill-green', k:'done'  };
-  return { t:'可扫码', c:'pill-green', k:'free' };
+  return d.box.released ? { t:'可扫码', c:'pill-green', k:'free' }
+                        : { t:'绑定中', c:'pill-blue',  k:'bound' };
 }
 
 function log(action, detail, deviceId, result='ok'){
@@ -244,7 +246,11 @@ function renderClub(page){ page==='logs' ? renderClubLogs() : renderDevices(); }
 let devFilter = { q:'', seg:'all' };
 
 function bindingLines(d){
-  if (!d.bindings.length) return '<span class="muted">未绑定</span>';
+  /* 零绑定但盒码没释放 = 原账号在 App 里自己解绑了，码还占着。
+     这种行不能显示成"未绑定"，否则和「绑定中」自相矛盾。 */
+  if (!d.bindings.length)
+    return d.box.released ? '<span class="muted">—</span>'
+      : '<span class="muted">原账号已自行解绑</span><div class="hint">盒码仍被占用，需重置</div>';
   const byEmail = {};
   d.bindings.forEach(b=>{ (byEmail[b.userEmail] ||= []).push(b); });
   return Object.entries(byEmail).map(([email, list])=>{
@@ -258,12 +264,7 @@ function renderDevices(){
   const q = devFilter.q.trim().toUpperCase();
 
   let list = all;
-  if (devFilter.seg!=='all') list = list.filter(d=>{
-    const k = devState(d).k;
-    if (devFilter.seg==='bound') return k==='bound';
-    if (devFilter.seg==='free')  return k==='free'||k==='done';
-    return k==='held'||k==='busy';
-  });
+  if (devFilter.seg!=='all') list = list.filter(d=>devState(d).k===devFilter.seg);
   if (q) list = list.filter(d =>
     subseq(q, d.leftSn) || subseq(q, d.rightSn) ||
     d.box.code.toUpperCase().includes(q) ||
@@ -278,12 +279,13 @@ function renderDevices(){
   }
 
   const n = k => all.filter(d=>devState(d).k===k).length;
+  const needFix = all.filter(d=>failedOpOf(d)).length;
   const stats = `
-    <div class="stats">
+    <div class="stats stats-3">
       <div class="stat"><div class="l">${ic('box',14)} 授权设备</div><div class="v">${all.length}<small>副</small></div></div>
-      <div class="stat"><div class="l">${ic('users',14)} 绑定中</div><div class="v">${n('bound')}<small>副</small></div></div>
-      <div class="stat"><div class="l">${ic('qr',14)} 可扫码</div><div class="v">${n('free')+n('done')}<small>副</small></div></div>
-      <div class="stat"><div class="l" style="color:var(--orange-900)">${ic('alert',14)} 已解绑待重置</div><div class="v">${n('held')+n('busy')}<small>副</small></div></div>
+      <div class="stat"><div class="l">${ic('users',14)} 绑定中</div><div class="v">${n('bound')}<small>副</small>
+        ${needFix?`<span class="stat-warn">${ic('alert',12)} ${needFix} 副收回失败待重试</span>`:''}</div></div>
+      <div class="stat"><div class="l">${ic('qr',14)} 可扫码</div><div class="v">${n('free')}<small>副</small></div></div>
     </div>`;
 
   const rows = list.map(d=>{
@@ -294,14 +296,9 @@ function renderDevices(){
         <div class="pair"><span class="tag">L</span><span class="mono">${esc(d.leftSn)}</span></div>
         <div class="pair"><span class="tag">R</span><span class="mono">${esc(d.rightSn)}</span></div>
       </td>
-      <td style="min-width:200px">
-        <div class="mono">${esc(d.box.code)}</div>
-        <div class="hint" style="margin-top:3px">${d.box.released?'可扫码':'未释放，扫不了'}</div>
-      </td>
-      <td style="min-width:150px"><span class="pill ${s.c}"><span class="dot"></span>${s.t}</span>
-        ${s.k==='held'&&!fop?`<div class="warn-inline">${ic('alert',12)} 下一位扫不了码</div>`:''}
+      <td style="min-width:152px"><span class="pill ${s.c}"><span class="dot"></span>${s.t}</span>
         ${fop?`<div class="warn-inline">${ic('alert',12)} 上次重置失败：${esc(OP_ERROR[fop.errorCode]||fop.errorCode)}</div>`:''}
-        ${op?`<div class="hint" style="margin-top:3px">作业 ${esc(op.operationId.slice(0,8))} 处理中</div>`:''}
+        ${op?`<div class="hint" style="margin-top:4px;display:inline-flex;gap:5px;align-items:center">${ic('spin',12)} 正在处理</div>`:''}
       </td>
       <td style="min-width:210px">${bindingLines(d)}</td>
       <td style="text-align:right;min-width:244px"><div class="row-acts">${rowActions(d)}</div></td>
@@ -311,9 +308,9 @@ function renderDevices(){
   const body = `
     ${stats}
     <div class="toolbar">
-      <div class="search"><span class="ic">${ic('search',15)}</span><input class="input" id="q" placeholder="SN 短号 / 完整 SN / 盒码 / 用户邮箱" value="${esc(devFilter.q)}"></div>
+      <div class="search"><span class="ic">${ic('search',15)}</span><input class="input" id="q" placeholder="SN 短号 / 完整 SN / 使用人邮箱" value="${esc(devFilter.q)}"></div>
       <div class="segs">
-        ${[['all','全部'],['bound','绑定中'],['free','可扫码'],['todo','待重置']].map(([k,t])=>
+        ${[['all','全部'],['bound','绑定中'],['free','可扫码']].map(([k,t])=>
           `<button data-seg="${k}" class="${devFilter.seg===k?'on':''}">${t}</button>`).join('')}
       </div>
       <div class="spacer"></div>
@@ -325,7 +322,7 @@ function renderDevices(){
         <span class="code-inline">${esc(denied)}</span> 不在本主体的可操作设备清单里，无法查询或操作。如确认该设备属于贵方，请联系 Heygo 对接人开通授权。</div></div></div>`:''}
     <div class="card">
       <table class="tbl">
-        <thead><tr><th>设备（出厂配对）</th><th>盒码</th><th>状态</th><th>绑定账号</th><th style="text-align:right">操作</th></tr></thead>
+        <thead><tr><th>设备</th><th>状态</th><th>当前使用人</th><th style="text-align:right">操作</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
       ${list.length?'':`<div class="empty"><div class="big">没有匹配的设备</div><div>换个 SN 短号试试，或切换上方筛选</div></div>`}
@@ -342,12 +339,10 @@ function renderDevices(){
 }
 
 function rowActions(d){
-  const s = devState(d).k, a=[];
-  if (s==='busy') return `<span class="muted" style="display:inline-flex;gap:5px;align-items:center">${ic('spin',13)} 处理中</span>`;
-  if (failedOpOf(d)) a.push(`<button class="btn-link" data-act="ops" data-id="${d.id}"><b>去重试</b></button>`);
-  else if (d.bindings.length || !d.box.released)
-    a.push(`<button class="btn-link" data-act="reset" data-id="${d.id}"><b>解绑并重置</b></button>`);
-  if (d.bindings.length) a.push(`<button class="btn-link" data-act="unbind" data-id="${d.id}">解除绑定</button>`);
+  const a=[];
+  if (liveOpOf(d)) a.push(`<span class="muted" style="display:inline-flex;gap:5px;align-items:center">${ic('spin',13)} 处理中</span>`);
+  else if (failedOpOf(d)) a.push(`<button class="btn-link" data-act="ops" data-id="${d.id}"><b>去重试</b></button>`);
+  else if (!d.box.released) a.push(`<button class="btn-link" data-act="reset" data-id="${d.id}"><b>解绑并重置</b></button>`);
   a.push(`<button class="btn-link" data-act="detail" data-id="${d.id}">详情</button>`);
   return a.join('');
 }
@@ -355,71 +350,15 @@ function bindRowActions(){
   $$('[data-act]').forEach(b=>b.onclick=ev=>{
     ev.stopPropagation();
     const d = deviceById(b.dataset.id);
-    ({ reset:askReset, unbind:askUnbind, detail:showDetail, ops:()=>{ location.hash='#/logs'; } })[b.dataset.act](d);
+    ({ reset:askReset, detail:showDetail, ops:()=>{ location.hash='#/logs'; } })[b.dataset.act](d);
   });
 }
 
 /* ============================================================
-   动作一：解除绑定（同步、按区、不动盒码）
-   对应 dev-portal 绑定管理页：勾选绑定记录 → 填原因（选填）→ 解绑。
-   BFF 契约：POST unbind { binding_ids[1..100], region, operation_id, reason≤500 }
-   ============================================================ */
-function askUnbind(d){
-  if(!d.bindings.length) return toast('该设备当前没有绑定记录','err');
-  let sel = new Set(), reason = '';
-
-  const paint = ()=>{
-    $('#bindList').innerHTML = d.bindings.map(b=>`
-      <label class="bind-pick ${sel.has(b.bindingId)?'on':''}">
-        <input type="checkbox" data-bid="${b.bindingId}" ${sel.has(b.bindingId)?'checked':''}>
-        <div style="min-width:0;flex:1">
-          <div class="r1"><span class="em">${esc(b.userEmail)}</span>
-            <span class="feet">${b.sn.slice(-6,-5)===
-              'L'?'左脚':'右脚'}</span></div>
-          <div class="mono r2">${esc(b.sn)}</div>
-          <div class="hint">固件 ${esc(b.firmware)} · 绑定于 ${esc(b.boundAt)} · 最后在线 ${esc(b.lastSeenAt)}</div>
-        </div></label>`).join('');
-    $$('#bindList input').forEach(cb=>cb.onchange=()=>{
-      const b = d.bindings.find(x=>x.bindingId===cb.dataset.bid);
-      sel.has(b.bindingId) ? sel.delete(b.bindingId) : sel.add(b.bindingId);
-      paint();
-    });
-    $('#uOk').disabled = sel.size===0;
-    $('#uOk').textContent = sel.size ? `确认解除绑定（${sel.size}）` : '确认解除绑定';
-  };
-
-  openModal(`
-    <div class="modal-h"><h3>解除绑定</h3>
-      <p>勾选要解除的绑定记录。解绑后，用户需要重新完成设备绑定才能继续使用相关能力。</p></div>
-    <div class="modal-b">
-      <div id="bindList" class="bind-list"></div>
-      <div class="note note-amber" style="margin-top:14px">${ic('alert',16)}
-        <div><b>解绑不会释放盒码。</b>解绑之后设备会变成「已解绑待重置」，
-        盒码还被原账号占着，下一位用户扫不了。要交给下一个人，用「解绑并重置」。</div></div>
-      <div class="field" style="margin:16px 0 0"><label>解绑原因（选填，最多 500 字）</label>
-        <textarea class="textarea" id="uReason" style="min-height:72px;font-family:inherit;font-size:13px"
-          maxlength="500" placeholder="例如：售后换机、用户申请解除绑定"></textarea></div>
-      <div class="hint">一次最多 100 条。左右脚是两条独立的绑定记录，可以只解其中一只。</div>
-    </div>
-    <div class="modal-f"><button class="btn" id="mCancel">取消</button>
-      <button class="btn btn-danger" id="uOk" disabled>确认解除绑定</button></div>`);
-  $('#mCancel').onclick = closeModal;
-  paint();
-  $('#uOk').onclick = ()=>{
-    reason = $('#uReason').value.trim();
-    const picked = d.bindings.filter(b=>sel.has(b.bindingId));
-    d.bindings = d.bindings.filter(b=>!sel.has(b.bindingId));
-    log('unbind', `解除绑定 ${picked.length} 条${reason?' · '+reason:''}`, d.id);
-    save(); closeModal();
-    toast(`已解除 ${picked.length} 条绑定记录。`);
-    if (!d.box.released && !d.bindings.length) setTimeout(()=>toast('盒码未释放，下一位还扫不了','err'), 800);
-    route();
-  };
-}
-
-/* ============================================================
-   动作二：解绑并重置（原因必填 → 预览 → 异步作业，可重试）
+   唯一动作：解绑并重置（原因必填 → 预览 → 异步作业，可重试）
    对应 dev-portal 盒码管理的 reset：preview → submit(expected_state) → 轮询 → retry
+   俱乐部端刻意只保留这一个动作：单独的「解除绑定」只会制造"解绑了还是扫不了码"，
+   对前台来说是多一个要理解的概念、多一次会出错的操作。
    ============================================================ */
 function resetPreview(d){
   return { state: 'st_'+Math.random().toString(36).slice(2,10), bindCount: d.bindings.length };
@@ -429,37 +368,42 @@ function askReset(d){
   if (liveOpOf(d)) return toast('这对设备已有未完成操作','err');
   const pv = resetPreview(d);
 
+  const REASONS = ['客人还板，交给下一位','换一副设备给客人','客人扫错了码','设备返修 / 回收'];
   openModal(`
     <div class="modal-h"><h3>解绑并重置</h3>
-      <p>解除这副设备上的全部绑定，并把盒码重置成可扫码。</p></div>
+      <p>把这副设备从当前使用人名下收回，收回后下一位客人可以直接扫码。</p></div>
     <div class="modal-b">
       <div class="target-box">
         <div class="r"><span class="k">设备</span><span>${esc(d.model)} · ${esc(d.batch)} 批次</span></div>
         <div class="r"><span class="k">左脚 SN</span><span class="mono">${esc(d.leftSn)}</span></div>
         <div class="r"><span class="k">右脚 SN</span><span class="mono">${esc(d.rightSn)}</span></div>
         <div class="r"><span class="k">盒码</span><span class="mono">${esc(d.box.code)}</span></div>
-        <div class="r"><span class="k">盒码</span><span>${d.box.released?'可扫码':'未释放，扫不了'}</span></div>
+        <div class="r"><span class="k">当前使用人</span><span>${d.bindings.length?esc(d.bindings[0].userEmail):'<span class="muted">原账号已自行解绑</span>'}</span></div>
       </div>
 
-      <div class="sec-t" style="margin-top:18px">预览（不会写入）</div>
+      <div class="sec-t" style="margin-top:18px">这一步会做什么</div>
       <ul class="effects">
-        <li><span class="m"><span style="color:#C9343C">✕</span></span><span>解除绑定 <b>${pv.bindCount}</b> 条${pv.bindCount?'':'（当前已无绑定，只做盒码重置）'}</span></li>
-        <li><span class="m"><span style="color:#1C7A4A">✓</span></span><span>盒码重置为可扫码，下一位用户可直接扫码激活</span></li>
-        <li><span class="m"><span class="muted">·</span></span><span>原用户的历史数据与报告保留</span></li>
+        <li><span class="m"><span style="color:#C9343C">✕</span></span><span>${pv.bindCount?`原使用人的 App 里不再显示这副设备（${pv.bindCount} 条绑定）`:'当前已无绑定，只需要把码放出来'}</span></li>
+        <li><span class="m"><span style="color:#1C7A4A">✓</span></span><span>下一位客人可以直接扫码使用</span></li>
+        <li><span class="m"><span class="muted">·</span></span><span>原使用人的历史数据与报告保留，不受影响</span></li>
       </ul>
 
-      <div class="field" style="margin:18px 0 0"><label>操作原因（必填，最多 500 字）</label>
-        <textarea class="textarea" id="rReason" style="min-height:72px;font-family:inherit;font-size:13px"
-          maxlength="500" placeholder="例如：客人还板，准备交给下一位"></textarea></div>
-
-      <div class="note note-blue" style="margin-top:14px">${ic('alert',16)}
-        <div>提交后进入异步作业。<b>失败时盒码会停在未释放</b>，可在「操作记录」里重试。</div></div>
+      <div class="field" style="margin:18px 0 0"><label>为什么收回（点一个就行）</label>
+        <div class="chips" id="rChips">${REASONS.map((r,i)=>`<button type="button" class="chip" data-r="${i}">${r}</button>`).join('')}</div>
+        <textarea class="textarea" id="rReason" style="min-height:56px;margin-top:9px;font-family:inherit;font-size:13px"
+          maxlength="500" placeholder="也可以自己写，最多 500 字"></textarea></div>
     </div>
     <div class="modal-f"><button class="btn" id="mCancel">取消</button>
-      <button class="btn btn-danger" id="rOk" disabled>确认执行</button></div>`);
+      <button class="btn btn-danger" id="rOk" disabled>确认收回</button></div>`);
   $('#mCancel').onclick = closeModal;
   const ta = $('#rReason');
-  ta.oninput = ()=>{ $('#rOk').disabled = ta.value.trim().length===0; };
+  const sync = ()=>{ $('#rOk').disabled = ta.value.trim().length===0; };
+  ta.oninput = ()=>{ $$('#rChips .chip').forEach(c=>c.classList.remove('on')); sync(); };
+  $$('#rChips .chip').forEach(c=>c.onclick=()=>{
+    $$('#rChips .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on'); ta.value = REASONS[+c.dataset.r]; sync();
+  });
+  sync();
   $('#rOk').onclick = ()=>{
     const reason = ta.value.trim();
     closeModal();
@@ -485,7 +429,7 @@ function scheduleOp(opId){
     if (!op || op.status!=='running') return;
     const d = deviceById(op.deviceId);
     op.status='succeeded'; op.finishedAt=now();
-    d.bindings = []; d.box.released = true; d.everBound = true;
+    d.bindings = []; d.box.released = true;
     log('reset', `解绑并重置完成 · 盒码 ${d.box.code} 已可扫码`, d.id);
     save();
     toast('已就绪，可扫码激活');
@@ -528,18 +472,18 @@ function showDetail(d){
         <div style="min-width:0">
           <div class="hint" style="margin:0 0 4px">盒码 / 二维码内容</div>
           <div class="mono" style="font-size:13px;word-break:break-all">${esc(d.box.code)}</div>
-          <div class="hint" style="margin-top:6px">${d.box.released?'当前可扫码':'当前未释放，下一位扫不了'}</div>
+          <div class="hint" style="margin-top:6px">${d.box.released?'可扫码':'未释放，下一位扫不了'}</div>
           <button class="btn btn-sm" style="margin-top:9px" data-copy="${esc(d.box.code)}">复制盒码</button>
         </div></div>
 
-      <div class="sec-t">绑定账号（${d.bindings.length}）</div>
+      <div class="sec-t">当前使用人（${d.bindings.length}）</div>
       ${d.bindings.length?`<div class="bind-list">${d.bindings.map(b=>`
         <div class="bind-pick" style="cursor:default">
           <div style="min-width:0;flex:1">
             <div class="r1"><span class="em">${esc(b.userEmail)}</span><span class="feet">${b.sn.slice(-6,-5)==='L'?'左脚':'右脚'}</span></div>
             <div class="mono r2">${esc(b.sn)}</div>
             <div class="hint">固件 ${esc(b.firmware)} · 绑定于 ${esc(b.boundAt)}</div>
-          </div></div>`).join('')}</div>`:'<div class="hint">当前没有账号绑定这副设备。</div>'}
+          </div></div>`).join('')}</div>`:`<div class="hint">${d.box.released?'没有人在用，可以直接借出。':'原账号已在 App 里自行解绑，但盒码还占着，需要收回一次。'}</div>`}
 
       ${ops.length?`<div class="sec-t">盒码作业</div>
         <div class="bind-list">${ops.map(o=>`<div class="bind-pick" style="cursor:default">
@@ -559,15 +503,14 @@ function showDetail(d){
     </div>
     <div class="drawer-f">
       ${liveOpOf(d)?'<span class="muted" style="display:inline-flex;gap:6px;align-items:center;padding:8px 2px">'+ic('spin',14)+' 作业处理中</span>':`
-        ${(d.bindings.length||!d.box.released)?'<button class="btn btn-brand" data-dact="reset">解绑并重置</button>':''}
-        ${d.bindings.length?'<button class="btn" data-dact="unbind">解除绑定</button>':''}`}
+        ${!d.box.released?'<button class="btn btn-brand" data-dact="reset">解绑并重置</button>':'<span class="muted" style="padding:8px 2px">这副设备已可扫码，无需操作</span>'}`}
     </div>`);
   $('#dClose').onclick = closeDrawer;
   $$('[data-copy]').forEach(b=>b.onclick=()=>{
     navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('已复制到剪贴板')).catch(()=>toast('复制失败','err'));
   });
   $$('[data-dact]').forEach(b=>b.onclick=()=>{ closeDrawer();
-    ({reset:askReset,unbind:askUnbind})[b.dataset.dact](d); });
+    askReset(d); });
 }
 
 /* ============================================================
@@ -608,7 +551,7 @@ function renderClubLogs(){
 
   clubShell('logs','操作记录', `${esc(e.name)} 下所有账号的操作留痕，不可删除`, `
     <div class="card" style="margin-bottom:18px">
-      <div class="card-h"><div><h3>最近作业</h3><div class="sub">解绑并重置是异步执行的，失败的作业在这里重试</div></div>
+      <div class="card-h"><div><h3>最近操作</h3><div class="sub">收回设备要等后台处理几秒；没成功的在这里重试一次</div></div>
         <button class="btn btn-sm" id="refreshOps">${ic('refresh',13)} 刷新</button></div>
       <div style="padding:14px 16px">${opCards || '<div class="hint">暂无作业。</div>'}</div>
     </div>

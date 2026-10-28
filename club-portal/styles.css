@@ -308,3 +308,14 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
 .op-card.running,.op-card.pending{border-color:var(--orange-800);background:var(--orange-300)}
 .op-card .r1{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .op-card .em{font-size:13.5px;font-weight:600}
+
+/* ---------- 三列统计 / 预设原因 chips ---------- */
+.stats-3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.stats-3{grid-template-columns:repeat(2,1fr)}}
+.stat-warn{display:block;font-size:12px;font-weight:500;color:var(--orange-900);margin-top:6px;
+  display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:6px 12px;
+  font-size:12.5px;cursor:pointer;color:var(--ink-2);transition:all .14s}
+.chip:hover{border-color:var(--grey-200);background:var(--blue-50);color:var(--ink)}
+.chip.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
