@@ -445,3 +445,11 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
   .stats .stat:last-child{grid-column:span 2}
   table.tbl-cards .row-acts .btn-link{flex:1 1 100%}
 }
+
+/* ---------- dev-portal 添加设备：两个 SN 输入 + 主档候选 ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.cand-list{display:grid;gap:7px;margin-top:9px;max-height:220px;overflow:auto}
+.cand{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--line-soft);border-radius:9px;padding:8px 11px;background:var(--blue-50)}
+#pairCheck .parse-res{margin-top:14px}

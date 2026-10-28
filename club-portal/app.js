@@ -772,13 +772,13 @@ function adminDevices(){
       <div>
         <div class="card">
           <div class="card-h"><div><h3>${esc(sel.name)}</h3><div class="sub">已授权 ${mine.length} 副（${mine.length*2} 个 SN）· 系统内未分配 ${unassigned} 副</div></div>
-            <button class="btn btn-brand btn-sm" id="addSn">${ic('plus',14)} 批量添加 SN</button></div>
+            <button class="btn btn-brand btn-sm" id="addSn">${ic('plus',14)} 添加设备</button></div>
           <div class="tbl-scroll"><table class="tbl"><thead><tr><th>设备 SN（出厂配对）</th><th>盒码</th><th>状态</th><th>绑定账号</th><th></th></tr></thead>
             <tbody>${rows}</tbody></table></div>
-          ${mine.length?'':'<div class="empty"><div class="big">该主体还没有授权任何设备</div><div>点右上角批量添加 SN</div></div>'}
+          ${mine.length?'':'<div class="empty"><div class="big">该主体还没有授权任何设备</div><div>点右上角「添加设备」</div></div>'}
         </div>
         <div class="note note-amber" style="margin-top:14px">${ic('alert',16)}<div>
-          <b>按出厂配对授权：</b>左右脚共用一个盒码，只授权单只 SN 没有意义。添加时系统会自动带上配对的另一只 SN。本站不支持重新配对。</div></div>
+          <b>一次一副，两个 SN。</b>左右脚共用一个盒码，只授权单只没有意义；两只必须是同一副出厂配对的设备，本站不支持重新配对。</div></div>
       </div>
     </div>`);
 
@@ -806,42 +806,88 @@ function adminDevices(){
   });
 
   $('#addSn').onclick = ()=>{
-    openModal(`<div class="modal-h"><h3>批量添加设备 SN</h3><p>一行一个 SN，或用逗号 / 空格分隔。支持左右脚任一只，系统自动补全配对的另一只。</p></div>
+    openModal(`<div class="modal-h"><h3>添加设备</h3>
+        <p>一次添加一副，填左右脚两个完整 SN。两只必须是同一副出厂配对的设备。</p></div>
       <div class="modal-b">
-        <textarea class="textarea" id="snIn" placeholder="HGS1STGBG260921L00908
-HGS1STGBG261002L00911
-HGS1STGBG260916L00902"></textarea>
-        <div class="hint">SN 格式：前缀（1–52 位字母数字）+ 6 位日期码 + L/R + 5 位序号，与 dev-portal 盒码管理一致。</div>
-        <div id="parse"></div>
+        <div class="field">
+          <label>从 SN 主档查找完整 SN</label>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="snFind" placeholder="输入短号、L901 或完整 SN" autocomplete="off">
+            <button class="btn" id="snFindGo" style="flex:none">查找</button>
+          </div>
+          <div id="snCand"></div>
+        </div>
+        <div class="grid2">
+          <div class="field" style="margin-bottom:0"><label>左脚完整 SN</label>
+            <input class="input mono" id="snL" placeholder="…L00901" autocomplete="off"></div>
+          <div class="field" style="margin-bottom:0"><label>右脚完整 SN</label>
+            <input class="input mono" id="snR" placeholder="…R20901" autocomplete="off"></div>
+        </div>
+        <div id="pairCheck"></div>
+        <div class="hint" style="margin-top:14px">SN 格式：前缀（1–52 位字母数字）+ 6 位日期码 + L/R + 5 位序号，与 dev-portal 盒码管理一致。</div>
       </div>
       <div class="modal-f"><button class="btn" id="mCancel">取消</button>
-        <button class="btn" id="mCheck">校验</button>
-        <button class="btn btn-brand" id="mOk" disabled>添加</button></div>`);
+        <button class="btn btn-brand" id="mOk" disabled>添加这副设备</button></div>`);
     $('#mCancel').onclick = closeModal;
-    let okIds = [];
-    const doParse = ()=>{
-      const toks = $('#snIn').value.toUpperCase().split(/[\s,，;；]+/).map(s=>s.trim()).filter(Boolean);
-      const seen = new Set(); okIds = [];
-      const res = toks.map(t=>{
-        if(!SN_RE.test(t)) return { t, st:'格式错误', cls:'err-c', msg:'不符合 SN 格式，已跳过' };
-        const d = DB.devices.find(x=>x.leftSn===t||x.rightSn===t);
-        if(!d) return { t, st:'未登记', cls:'err-c', msg:'SN 主档中没有这个号，请先在设备台账登记' };
-        if(d.entityId===sel.id) return { t, st:'已授权', cls:'warn-c', msg:'已在本主体名下，无需重复添加' };
-        if(d.entityId) return { t, st:'冲突', cls:'err-c', msg:`已授权给「${entityById(d.entityId).name}」，需先从该主体移除` };
-        if(seen.has(d.id)) return { t, st:'重复', cls:'warn-c', msg:'与上一条属于同一副设备' };
-        seen.add(d.id); okIds.push(d.id);
-        const other = d.leftSn===t ? d.rightSn : d.leftSn;
-        return { t, st:'可添加', cls:'ok-c', msg:`自动带入配对 SN ${other}` };
-      });
-      $('#parse').innerHTML = res.length ? `<div class="parse-res">${res.map(r=>
-        `<div class="parse-row"><span class="st ${r.cls}">${r.st}</span><span class="mono">${esc(r.t)}</span><span class="muted" style="margin-left:auto">${esc(r.msg)}</span></div>`).join('')}</div>` : '';
-      $('#mOk').disabled = okIds.length===0;
-      $('#mOk').textContent = okIds.length? `添加 ${okIds.length} 副设备` : '添加';
+
+    let target = null;   // 校验通过时指向那副设备
+
+    const say = (cls, st, msg) => {
+      $('#pairCheck').innerHTML = `<div class="parse-res"><div class="parse-row">
+        <span class="st ${cls}">${st}</span><span class="muted">${msg}</span></div></div>`;
     };
-    $('#mCheck').onclick = doParse;
-    $('#snIn').oninput = doParse;
-    $('#mOk').onclick = ()=>{ okIds.forEach(id=>{ deviceById(id).entityId = sel.id; });
-      save(); closeModal(); toast(`已授权 ${okIds.length} 副设备给 ${sel.name}`); adminDevices(); };
+
+    const check = ()=>{
+      target = null; $('#mOk').disabled = true;
+      const L = $('#snL').value.trim().toUpperCase(), R = $('#snR').value.trim().toUpperCase();
+      $('#snL').value = L; $('#snR').value = R;
+      if (!L || !R) { $('#pairCheck').innerHTML=''; return; }
+      if (!SN_RE.test(L) || !SN_RE.test(R)) return say('err-c','格式错误','SN 不符合格式，请核对完整 SN');
+      if (L.slice(-6,-5)!=='L')             return say('err-c','不是左脚','左脚 SN 的倒数第 6 位应为 L');
+      if (R.slice(-6,-5)!=='R')             return say('err-c','不是右脚','右脚 SN 的倒数第 6 位应为 R');
+      const dl = DB.devices.find(x=>x.leftSn===L), dr = DB.devices.find(x=>x.rightSn===R);
+      if (!dl && !dr) return say('err-c','未登记','SN 主档里没有这两只，请先在设备台账登记');
+      if (!dl)        return say('err-c','未登记',`左脚 ${L} 不在 SN 主档里`);
+      if (!dr)        return say('err-c','未登记',`右脚 ${R} 不在 SN 主档里`);
+      if (dl.id !== dr.id)
+        return say('err-c','配对不符',`这两只不是同一副出厂配对的设备（左脚那副的右脚是 ${dl.rightSn}）。本站不支持重新配对。`);
+      if (dl.entityId === sel.id) return say('warn-c','已授权','这副设备已在本主体名下，无需重复添加');
+      if (dl.entityId)            return say('err-c','冲突',`已授权给「${entityById(dl.entityId).name}」，需先从该主体移除`);
+      target = dl; $('#mOk').disabled = false;
+      say('ok-c','可添加',`${dl.model} · ${dl.batch} 批次 · ${dl.packageType}`);
+    };
+    $('#snL').oninput = check; $('#snR').oninput = check;
+
+    /* SN 主档模糊查找：逐字符顺序匹配，多条要人工挑，不自动取第一条 */
+    const search = ()=>{
+      const q = $('#snFind').value.trim().toUpperCase();
+      if (q.length < 2) { $('#snCand').innerHTML = '<div class="hint">至少输入 2 个字符。</div>'; return; }
+      const hits = [];
+      DB.devices.forEach(d=>{ [d.leftSn,d.rightSn].forEach(sn=>{ if(subseq(q,sn)) hits.push(sn); }); });
+      if (!hits.length) { $('#snCand').innerHTML =
+        '<div class="hint">SN 主档里没有匹配。请核对设备标签上的日期和短号，不要猜完整前缀。</div>'; return; }
+      $('#snCand').innerHTML = `
+        ${hits.length>1?`<div class="hint" style="margin-top:8px">找到 ${hits.length} 条，请按批次和日期自己选，不会自动取第一条。</div>`:''}
+        <div class="cand-list">${hits.slice(0,12).map(sn=>{
+          const isL = sn.slice(-6,-5)==='L';
+          return `<div class="cand"><div style="min-width:0">
+            <div class="mono" style="font-size:12.5px">${esc(sn)}</div>
+            <div class="hint">${isL?'左脚':'右脚'} · 日期码 ${esc(sn.slice(-12,-6))}</div>
+          </div><button class="btn btn-sm" data-fill-sn="${esc(sn)}" data-side="${isL?'L':'R'}">填入${isL?'左脚':'右脚'}</button></div>`;
+        }).join('')}</div>`;
+      $$('[data-fill-sn]').forEach(b=>b.onclick=()=>{
+        $(b.dataset.side==='L'?'#snL':'#snR').value = b.dataset.fillSn; check();
+      });
+    };
+    $('#snFindGo').onclick = search;
+    $('#snFind').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); search(); } });
+
+    $('#mOk').onclick = ()=>{
+      if (!target) return;
+      target.entityId = sel.id; save(); closeModal();
+      toast(`已授权 ${target.leftSn.slice(-6)} / ${target.rightSn.slice(-6)} 给 ${sel.name}`);
+      adminDevices();
+    };
   };
 }
 
