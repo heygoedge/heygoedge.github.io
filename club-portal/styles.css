@@ -453,3 +453,17 @@ table.tbl tbody tr:hover{background:var(--blue-50)}
 .cand{display:flex;align-items:center;justify-content:space-between;gap:10px;
   border:1px solid var(--line-soft);border-radius:9px;padding:8px 11px;background:var(--blue-50)}
 #pairCheck .parse-res{margin-top:14px}
+
+/* 每晚自动收回 · 开关（DS 没有 switch 组件，按主按钮的青底黑字规则派生）[本站补] */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;
+  padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:13.5px}
+.switch{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:24px;border-radius:999px;
+  background:var(--grey-200);position:relative;cursor:pointer;transition:background .15s;margin:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
+  background:var(--white);box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s}
+.switch:checked{background:var(--primary)}
+.switch:checked::after{left:21px}
+@media (max-width:760px){
+  .modal-f #arRun{flex-basis:100%;margin-right:0 !important;order:3}
+  .modal-f:has(#arRun){flex-wrap:wrap}
+}

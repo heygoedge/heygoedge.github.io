@@ -76,7 +76,17 @@ const OP_ERROR = {
   PREVIEW_CHANGED:'数据已变化，请重新预览。',
   OPERATION_PENDING:'这对设备已有未完成操作。'
 };
-const ACTION_TXT = { reset:'解绑并重置', unbind:'解除绑定（历史）', search:'搜索', login:'登录', config:'配置变更' };
+const ACTION_TXT = { reset:'解绑并重置', unbind:'解除绑定（历史）', search:'搜索', login:'登录', config:'配置变更',
+  auto_reset:'每晚自动收回' };
+
+/* 每晚自动收回（用户 2026-10-28 定）：
+     dev-portal 按主体配置，默认关闭，有需要的主体由 Heygo 打开；俱乐部端只读、不能自己改。
+     到点对本主体全部「绑定中」设备各提交一次「解绑并重置」，走同一套作业链路，失败同样可重试。
+     时间按北京时间（东八区）配置，可选凌晨 0–6 点整点，默认 03:00。 */
+const AUTO_TIMES = ['00:00','01:00','02:00','03:00','04:00','05:00','06:00'];
+const AUTO_ACTOR = '系统 · 每晚自动收回';
+const autoOf = e => e.autoReset || { enabled:false, time:'03:00' };
+const autoTxt = e => autoOf(e).enabled ? `每晚 ${autoOf(e).time}` : '关闭';
 
 /* 逐字符顺序模糊匹配：L125 命中 L00125（dev-portal 的 snSearchHint） */
 function subseq(q, target){
@@ -87,12 +97,13 @@ function subseq(q, target){
 }
 
 /* ---------- 状态 ---------- */
-const KEY = 'heygo-club-portal-demo-v2';
+const KEY = 'heygo-club-portal-demo-v3';
 let DB, SESSION = { accountId:null, mode:'club' };
 
 function load(){
-  try{ const raw = localStorage.getItem(KEY); if(raw){ DB = JSON.parse(raw); return; } }catch(e){}
-  DB = clone(window.SEED);
+  try{ const raw = localStorage.getItem(KEY); if(raw) DB = JSON.parse(raw); }catch(e){}
+  if (!DB) DB = clone(window.SEED);
+  DB.entities.forEach(e=>{ e.autoReset ||= { enabled:false, time:'03:00' }; });
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
 function resetDB(){ DB = clone(window.SEED); save(); }
@@ -111,11 +122,19 @@ function devState(d){
                         : { t:'绑定中', c:'pill-blue',  k:'bound' };
 }
 
-function log(action, detail, deviceId, result='ok'){
-  DB.logs.unshift({ id:uid('lg_'), at:now(), accountId:SESSION.accountId,
-    entityId: me() ? me().entityId : null, action, deviceId, detail, result });
+/* actor 传了就表示不是当前登录的俱乐部账号在操作（Heygo 运营 / 系统定时任务）；
+   主体优先按设备归属取，系统作业完成时没有登录态也能记对主体 */
+function log(action, detail, deviceId, result='ok', actor=null, entityId=null){
+  const d = deviceId ? deviceById(deviceId) : null;
+  DB.logs.unshift({ id:uid('lg_'), at:now(), accountId: actor ? null : SESSION.accountId, actor,
+    entityId: entityId || (d ? d.entityId : (me() ? me().entityId : null)), action, deviceId, detail, result });
   save();
 }
+const actorCell = l => {
+  if (l.actor) return `<div style="font-weight:500">${esc(l.actor)}</div><div class="hint">${l.actor===AUTO_ACTOR?'定时任务':'Heygo 内部'}</div>`;
+  const a = accountById(l.accountId);
+  return `<div style="font-weight:500">${esc(a?a.name:'—')}</div><div class="hint">${esc(a?a.username:'')}</div>`;
+};
 
 /* ---------- toast ---------- */
 function toast(msg, kind='ok'){
@@ -322,6 +341,9 @@ function renderDevices(){
       <div class="spacer"></div>
       <span class="hint">共 ${list.length} 条</span>
     </div>
+    ${autoOf(e).enabled?`<div class="note note-blue" style="margin-bottom:14px">${ic('clock',16)}
+        <div><b>每晚 ${esc(autoOf(e).time)}（北京时间）自动收回</b><div style="margin-top:3px">
+        到点后，所有「绑定中」的设备会自动解绑并重置，第二天都能直接扫码。客人如需跨夜使用，请在次日重新扫码绑定。此设置由 Heygo 开通，如需调整时间或关闭请联系 Heygo 对接人。</div></div></div>`:''}
     <div class="hint" style="margin:-6px 0 12px">SN 逐字符顺序匹配：输入 <span class="code-inline">L901</span> 可命中 <span class="code-inline">L00901</span>；所有匹配都会列出，不会自动选中。</div>
     ${denied?`<div class="note note-red" style="margin-bottom:14px">${ic('shield',16)}
         <div><b>该 SN 不在 ${esc(e.name)} 的授权范围内</b><div style="margin-top:3px">
@@ -438,9 +460,10 @@ function scheduleOp(opId){
     const d = deviceById(op.deviceId);
     op.status='succeeded'; op.finishedAt=now();
     d.bindings = []; d.box.released = true;
-    log('reset', `解绑并重置完成 · 盒码 ${d.box.code} 已可扫码`, d.id);
+    const auto = op.actor===AUTO_ACTOR;
+    log(auto?'auto_reset':'reset', `${auto?'每晚自动收回 · ':''}解绑并重置完成 · 盒码 ${d.box.code} 已可扫码`, d.id, 'ok', auto?AUTO_ACTOR:null);
     save();
-    toast('已就绪，可扫码激活');
+    toast(auto?`每晚自动收回：${d.leftSn.slice(-6)} 已可扫码`:'已就绪，可扫码激活');
     route();
   }, 2600);
 }
@@ -570,13 +593,13 @@ function renderClubLogs(){
   }).join('');
 
   const rows = DB.logs.filter(l=>l.entityId===e.id).map(l=>{
-    const a = accountById(l.accountId), d = l.deviceId?deviceById(l.deviceId):null;
+    const d = l.deviceId?deviceById(l.deviceId):null;
     const res = l.result==='ok' ? '<span class="pill pill-green"><span class="dot"></span>成功</span>'
              : l.result==='fail' ? '<span class="pill pill-red"><span class="dot"></span>失败</span>'
              : '<span class="pill pill-red"><span class="dot"></span>已拦截</span>';
     return `<tr>
       <td class="mono" style="white-space:nowrap">${esc(l.at)}</td>
-      <td><div style="font-weight:500">${esc(a?a.name:'—')}</div><div class="hint">${esc(a?a.username:'')}</div></td>
+      <td>${actorCell(l)}</td>
       <td><span class="pill pill-brand"><span class="dot"></span>${esc(ACTION_TXT[l.action]||l.action)}</span></td>
       <td>${d?`<div class="mono">${esc(d.leftSn)}</div><div class="mono muted">${esc(d.rightSn)}</div>`:'<span class="muted">—</span>'}</td>
       <td>${esc(l.detail)}</td><td>${res}</td></tr>`;
@@ -648,17 +671,22 @@ function adminEntities(){
       <td>${esc(e.contact)}<div class="hint mono">${esc(e.phone)}</div></td>
       <td class="mono">${accs.length} 个</td>
       <td class="mono">${ds.length} 副 / ${ds.length*2} 个 SN</td>
+      <td style="white-space:nowrap">${autoOf(e).enabled
+          ? `<span class="pill pill-green"><span class="dot"></span>每晚 ${esc(autoOf(e).time)}</span>`
+          : '<span class="pill pill-grey"><span class="dot"></span>关闭</span>'}
+        <button class="btn-link" data-auto="${e.id}" style="margin-left:6px">设置</button></td>
       <td><button class="btn-link" data-ent="${e.id}">管理设备授权</button></td>
     </tr>`;
   }).join('');
   adminShell('entities','主体管理','俱乐部 / 公司是账号与设备授权的归属单位，一个主体可以有多个登录账号', `
     <div class="toolbar"><div class="spacer"></div><button class="btn btn-brand btn-sm" id="newEnt">${ic('plus',14)} 新建主体</button></div>
     <div class="card"><div class="tbl-scroll"><table class="tbl">
-      <thead><tr><th>主体</th><th>类型</th><th>联系人</th><th>账号</th><th>授权设备</th><th></th></tr></thead>
+      <thead><tr><th>主体</th><th>类型</th><th>联系人</th><th>账号</th><th>授权设备</th><th>每晚自动收回</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table></div></div>
     <div class="note note-blue" style="margin-top:14px">${ic('shield',16)}<div>
       <b>授权唯一性：</b>一副设备同一时间只能归属一个主体。把它授权给新主体前，必须先从原主体移除，避免两家俱乐部同时能解绑同一副设备。</div></div>`);
   $$('[data-ent]').forEach(b=>b.onclick=()=>{ adminSel.entityId=b.dataset.ent; location.hash='#/admin/devices'; });
+  $$('[data-auto]').forEach(b=>b.onclick=()=>autoResetModal(entityById(b.dataset.auto)));
   $('#newEnt').onclick = ()=>{
     openModal(`<div class="modal-h"><h3>新建主体</h3><p>主体建立后即可在其下开通登录账号、授权设备 SN。</p></div>
       <div class="modal-b">
@@ -673,10 +701,71 @@ function adminEntities(){
       const name=$('#eName').value.trim(); if(!name) return toast('请填写主体名称','err');
       DB.entities.push({ id:uid('ent_'), name, type:$('#eType').value,
         contact:$('#eContact').value.trim()||'—', phone:$('#ePhone').value.trim()||'—',
-        createdAt:now().slice(0,10), status:'active' });
+        createdAt:now().slice(0,10), status:'active', autoReset:{ enabled:false, time:'03:00' } });
       save(); closeModal(); toast('主体已创建'); adminEntities();
     };
   };
+}
+
+/* ---------- 每晚自动收回（按主体配置，默认关闭） ---------- */
+function autoResetModal(e){
+  const cur = autoOf(e);
+  const bound = devicesOf(e.id).filter(d=>!d.box.released).length;
+  openModal(`<div class="modal-h"><h3>每晚自动收回</h3><p>${esc(e.name)}</p></div>
+    <div class="modal-b">
+      <label class="switch-row"><span><b>开启每晚自动收回</b><span class="hint" style="display:block;margin-top:2px">新主体默认关闭，俱乐部有需要时由 Heygo 打开</span></span>
+        <input type="checkbox" class="switch" id="arOn" ${cur.enabled?'checked':''}></label>
+      <div class="field" id="arTimeF" style="margin:16px 0 0"><label>执行时间（北京时间）</label>
+        <select class="select" id="arTime">${AUTO_TIMES.map(t=>`<option ${t===cur.time?'selected':''}>${t}</option>`).join('')}</select>
+        <div class="hint">只开放凌晨 0–6 点整点，避开营业时间。</div></div>
+      <div class="sec-t" style="margin-top:18px">到点会做什么</div>
+      <ul class="effects">
+        <li><span class="m"><span style="color:#C9343C">✕</span></span><span>本主体所有「绑定中」的设备各提交一次「解绑并重置」（当前 ${bound} 副）</span></li>
+        <li><span class="m"><span style="color:#1C7A4A">✓</span></span><span>第二天前台打开就是全部「可扫码」，不用逐副收回</span></li>
+        <li><span class="m"><span class="muted">·</span></span><span>已有处理中作业的设备跳过；白天收回失败的顺带重试；夜里失败的进俱乐部「操作记录」，可重试</span></li>
+        <li><span class="m"><span class="muted">·</span></span><span>原使用人的历史数据与报告保留；操作人记为「${AUTO_ACTOR}」</span></li>
+      </ul>
+      <div class="note note-amber" style="margin-top:14px">${ic('alert',16)}<div>开启后，客人跨夜连续使用（比如两天课程）也会被收回，次日要重新扫码。开通前和俱乐部确认。</div></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-sm" id="arRun" title="演示用：不等到点，立即按当前主体跑一次" style="margin-right:auto">${ic('refresh',13)} 演示：立即执行一次</button>
+      <button class="btn" id="mCancel">取消</button><button class="btn btn-brand" id="mOk">保存</button></div>`);
+  const sync = ()=>{ $('#arTimeF').style.opacity = $('#arOn').checked ? 1 : .45; $('#arTime').disabled = !$('#arOn').checked; };
+  $('#arOn').onchange = sync; sync();
+  $('#mCancel').onclick = closeModal;
+  $('#mOk').onclick = ()=>{
+    const next = { enabled:$('#arOn').checked, time:$('#arTime').value };
+    if (next.enabled===cur.enabled && (!next.enabled || next.time===cur.time)) return closeModal();
+    e.autoReset = next;
+    log('config', next.enabled ? `${cur.enabled?'修改':'开启'}每晚自动收回 · 每天 ${next.time}（北京时间）` : '关闭每晚自动收回',
+      null, 'ok', 'Heygo 运营', e.id);
+    save(); closeModal(); toast(next.enabled?`已开启，每晚 ${next.time} 执行`:'已关闭每晚自动收回'); adminEntities();
+  };
+  $('#arRun').onclick = ()=>{ closeModal(); runAutoReset(e); adminEntities(); };
+}
+
+/* 定时任务本体：对主体下每副「绑定中」设备提交一次解绑并重置，和前台手动走同一条作业链路 */
+function runAutoReset(e){
+  const targets = devicesOf(e.id).filter(d=>!d.box.released && !liveOpOf(d));
+  if (!targets.length){
+    log('auto_reset','每晚自动收回 · 没有绑定中的设备，无需处理', null, 'ok', AUTO_ACTOR, e.id);
+    return toast('没有绑定中的设备，无需处理');
+  }
+  targets.forEach(d=>{
+    /* 白天收回失败、还没人重试的，自动收回直接接着重试这条作业，不另起一条，免得失败记录一直挂着 */
+    const fop = failedOpOf(d);
+    if (fop){
+      fop.status='running'; fop.errorCode=''; fop.finishedAt=null; fop.actor=AUTO_ACTOR;
+      log('auto_reset', `每晚自动收回 · 重试作业 ${fop.operationId.slice(0,8)}`, d.id, 'ok', AUTO_ACTOR);
+      return scheduleOp(fop.id);
+    }
+    const op = { id:uid('op_'), operationId:uuid(), action:'reset', deviceId:d.id, boxCode:d.box.code,
+      status:'running', errorCode:'', actor:AUTO_ACTOR, reason:'每晚自动收回', createdAt:now(), finishedAt:null };
+    DB.operations.unshift(op);
+    log('auto_reset', `每晚自动收回 · 提交解绑并重置 · 作业 ${op.operationId.slice(0,8)}`, d.id, 'ok', AUTO_ACTOR);
+    scheduleOp(op.id);
+  });
+  save(); toast(`已提交 ${targets.length} 副设备的解绑并重置`);
 }
 
 /* ---------- 账号管理 ---------- */
@@ -894,13 +983,13 @@ function adminDevices(){
 /* ---------- 操作审计 ---------- */
 function adminAudit(){
   const rows = DB.logs.map(l=>{
-    const a=accountById(l.accountId), e=entityById(l.entityId), d=l.deviceId?deviceById(l.deviceId):null;
+    const e=entityById(l.entityId), d=l.deviceId?deviceById(l.deviceId):null;
     const res = l.result==='ok' ? '<span class="pill pill-green"><span class="dot"></span>成功</span>'
              : l.result==='fail' ? '<span class="pill pill-red"><span class="dot"></span>失败</span>'
              : '<span class="pill pill-red"><span class="dot"></span>已拦截</span>';
     return `<tr><td class="mono" style="white-space:nowrap">${esc(l.at)}</td>
       <td>${esc(e?e.name:'—')}</td>
-      <td><div class="mono">${esc(a?a.username:'—')}</div></td>
+      <td>${l.actor?esc(l.actor):`<div class="mono">${esc((accountById(l.accountId)||{}).username||'—')}</div>`}</td>
       <td><span class="pill pill-brand"><span class="dot"></span>${esc(ACTION_TXT[l.action]||l.action)}</span></td>
       <td>${d?`<span class="mono">${esc(d.leftSn)}</span>`:'<span class="muted">—</span>'}</td>
       <td>${esc(l.detail)}</td><td>${res}</td></tr>`;

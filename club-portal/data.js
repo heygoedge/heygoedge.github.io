@@ -14,9 +14,13 @@
    ============================================================ */
 window.SEED = {
   entities: [
-    { id:'ent_nanshan', name:'南山滑雪俱乐部',          type:'club',    contact:'王磊',   phone:'138****2043', createdAt:'2026-09-28', status:'active' },
-    { id:'ent_wanlong', name:'万龙单板公园 · 教学部',    type:'club',    contact:'赵一帆', phone:'186****7712', createdAt:'2026-10-09', status:'active' },
-    { id:'ent_jihe',    name:'北京几何体育科技有限公司', type:'company', contact:'陈悦',   phone:'139****5580', createdAt:'2026-10-15', status:'active' }
+    { id:'ent_nanshan', name:'南山滑雪俱乐部',          type:'club',    contact:'王磊',   phone:'138****2043', createdAt:'2026-09-28', status:'active',
+      autoReset:{ enabled:false, time:'03:00' } },
+    /* 万龙开着每晚自动收回，用来演示开启后的样子；新主体默认关闭（用户 2026-10-28 定） */
+    { id:'ent_wanlong', name:'万龙单板公园 · 教学部',    type:'club',    contact:'赵一帆', phone:'186****7712', createdAt:'2026-10-09', status:'active',
+      autoReset:{ enabled:true,  time:'03:00' } },
+    { id:'ent_jihe',    name:'北京几何体育科技有限公司', type:'company', contact:'陈悦',   phone:'139****5580', createdAt:'2026-10-15', status:'active',
+      autoReset:{ enabled:false, time:'03:00' } }
   ],
 
   accounts: [
@@ -73,8 +77,8 @@ window.SEED = {
       leftSn:'HGS1STGBG260917L00905', rightSn:'HGS1STGBG260917R20905',
       box:{ code:'HG3.KoRfmTPXtBkEuCfUxNvEeb', released:false },
       bindings:[
-        { bindingId:'bd_1009', userEmail:'wu***@foxmail.com', sn:'HGS1STGBG260917L00905', deviceName:'左脚', firmware:'1.4.2', boundAt:'2026-10-19 15:30', lastSeenAt:'2026-10-22 10:44' },
-        { bindingId:'bd_1010', userEmail:'wu***@foxmail.com', sn:'HGS1STGBG260917R20905', deviceName:'右脚', firmware:'1.4.2', boundAt:'2026-10-19 15:30', lastSeenAt:'2026-10-22 10:44' }
+        { bindingId:'bd_1009', userEmail:'wu***@foxmail.com', sn:'HGS1STGBG260917L00905', deviceName:'左脚', firmware:'1.4.2', boundAt:'2026-10-28 09:20', lastSeenAt:'2026-10-28 11:05' },
+        { bindingId:'bd_1010', userEmail:'wu***@foxmail.com', sn:'HGS1STGBG260917R20905', deviceName:'右脚', firmware:'1.4.2', boundAt:'2026-10-28 09:20', lastSeenAt:'2026-10-28 11:05' }
       ] },
     { id:'d08', entityId:'ent_wanlong', model:'Heygo-S1', batch:'260917', packageType:'标准套装',
       leftSn:'HGS1STGBG260917L00907', rightSn:'HGS1STGBG260917R20906',
@@ -106,10 +110,13 @@ window.SEED = {
       createdAt:'2026-10-26 18:22', finishedAt:'2026-10-26 18:23' }
   ],
 
+  /* actor 有值时表示不是俱乐部账号做的：Heygo 运营改配置，或系统夜间自动收回 */
   logs: [
+    { id:'lg0', at:'2026-10-28 03:00', accountId:null, actor:'系统 · 每晚自动收回', entityId:'ent_wanlong', action:'auto_reset', deviceId:'d07', detail:'每晚自动收回 · 解绑并重置完成', result:'ok' },
     { id:'lg1', at:'2026-10-26 18:22', accountId:'acc_ns_1', entityId:'ent_nanshan', action:'reset',  deviceId:'d05', detail:'解绑并重置 · 提交失败，待重试', result:'fail' },
     { id:'lg2', at:'2026-10-25 17:02', accountId:'acc_ns_2', entityId:'ent_nanshan', action:'unbind', deviceId:'d04', detail:'解绑并重置', result:'ok' },
     { id:'lg3', at:'2026-10-24 09:14', accountId:'acc_wl_1', entityId:'ent_wanlong', action:'reset',  deviceId:'d08', detail:'解绑并重置', result:'ok' },
-    { id:'lg4', at:'2026-10-23 19:48', accountId:'acc_ns_1', entityId:'ent_nanshan', action:'search', deviceId:null, detail:'搜索越权 SN · L00902', result:'denied' }
+    { id:'lg4', at:'2026-10-23 19:48', accountId:'acc_ns_1', entityId:'ent_nanshan', action:'search', deviceId:null, detail:'搜索越权 SN · L00902', result:'denied' },
+    { id:'lg5', at:'2026-10-20 18:30', accountId:null, actor:'Heygo 运营', entityId:'ent_wanlong', action:'config', deviceId:null, detail:'开启每晚自动收回 · 每天 03:00（北京时间）', result:'ok' }
   ]
 };
