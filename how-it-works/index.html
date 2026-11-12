@@ -47,6 +47,17 @@ h2{font-size:clamp(30px,3.6vw,46px);line-height:1.15;margin:10px 0 14px}
 .tl h3{font-size:24px;margin:8px 0}.tl p{color:#C3CAD2;font-size:15.5px;line-height:1.75}
 .tlimg .phone{width:240px;margin:0 auto}
 .stat{display:flex;gap:56px;flex-wrap:wrap;margin-top:28px}.stat b{font-size:44px;color:var(--lime)}.stat span{display:block;color:var(--mut);font-size:14px;margin-top:4px}
+.mwrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;margin-top:36px}
+.mtabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.mtab{background:#13171C;border:1px solid var(--line);color:#fff;border-radius:999px;padding:10px 18px;cursor:pointer;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.mtab span{color:var(--mut);font-size:12px}.mtab.on{background:var(--teal);color:#0B0D10;border-color:var(--teal)}.mtab.on span{color:#0b3d36}
+.mpane{display:none}.mpane.on{display:block;animation:in .3s ease}
+.mlead{color:#C3CAD2;font-size:16px;margin-bottom:16px}.mlead b{color:var(--teal)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mc{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#111419}.mc h4{font-size:17px;margin-bottom:6px}.mc p{color:#AEB6C0;font-size:14px;line-height:1.65}
+.basics{margin-top:48px;border-top:1px solid var(--line);padding-top:30px}.basics h3{font-size:20px;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}.chip{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;color:#D7DCE2;background:#0F1216}
+@media(max-width:900px){.mwrap{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}}
 footer{padding:40px 0 70px;color:#6E7782;font-size:13px;line-height:1.8;border-top:1px solid var(--line)}
 @media(max-width:900px){.steps{grid-template-columns:1fr 1fr}.panel.on{grid-template-columns:1fr}.stage{order:-1}.tl{grid-template-columns:20px 1fr}.tlimg{grid-column:2}.rider{flex-direction:column;align-items:flex-start}.rider .k{grid-template-columns:repeat(2,auto)}}
 @media(max-width:560px){.steps{grid-template-columns:1fr}section{padding:64px 0}}
@@ -59,6 +70,10 @@ footer{padding:40px 0 70px;color:#6E7782;font-size:13px;line-height:1.8;border-t
 <p class="sub">读数据、理解数据、理解你，最后都落到 App 里你能看到、能照着做的东西上。</p>
 <div class="steps"><div class="step"><span class="n">01</span><h3>夹上，直接滑</h3><p>两枚传感器夹在左右雪鞋侧壁，打开 App 点 Go 就开始记录。不用做任何校准动作，滑几个弯它就认准了安装位置。</p></div><div class="step"><span class="n">02</span><h3>读懂每一个弯</h3><p>双脚动作以 100Hz 持续记录。Heygo 把一趟拆成一段段、一个个弯，认出你在走刃还是搓雪，记下立刃角、速度和弯形。</p></div><div class="step"><span class="n">03</span><h3>理解你这个人</h3><p>每一段都按时机、施压、流畅度、相似度四个维度给出 Heygo IQ。每次都和你自己之前比，找出属于你的问题。</p></div><div class="step"><span class="n">04</span><h3>告诉你下一步</h3><p>滑行中耳机里有简短提示；一趟结束有单趟报告；一天结束有全天报告，讲清问题在哪、为什么、下一趟练什么。</p></div></div></div></section>
 
+<section style="padding-top:0"><div class="wrap"><div class="kick">Heygo 测什么</div><h2>四个维度，读懂每一个弯</h2>
+<p class="sub">每一段滑行都按时机、施压、流畅度、相似度四个维度打出 Heygo IQ。每个维度下面是可以点开细看的进阶指标，全部来自双脚的真实动作。</p>
+<div class="mwrap"><div><div class="mtabs"><button class="mtab on" data-m="0"><b>时机</b><span>Timing</span></button><button class="mtab" data-m="1"><b>施压</b><span>Pressure</span></button><button class="mtab" data-m="2"><b>流畅度</b><span>Flow</span></button><button class="mtab" data-m="3"><b>相似度</b><span>Similarity</span></button></div><div class="mpane on" data-m="0"><p class="mlead"><b>时机</b> · 该换刃的时候换没换、换得够不够早。</p><div class="mgrid"><div class="mc"><h4>提前换刃</h4><p>在板头冲向滚落线之前有多早完成换刃。越早，上半弧越完整，弯中越好控速。</p></div><div class="mc"><h4>立刃速度</h4><p>换刃后刃角建立得快不快、稳不稳。</p></div><div class="mc"><h4>压力释放</h4><p>换刃时旧弯的压力有没有及时、平顺地放掉。</p></div></div></div><div class="mpane" data-m="1"><p class="mlead"><b>施压</b> · 弯中压力给得稳不稳、够不够。</p><div class="mgrid"><div class="mc"><h4>施压质量</h4><p>整个弯里压力施加和释放是否连续、集中、可重复。</p></div><div class="mc"><h4>离心力</h4><p>弯中承受的负荷有多大。</p></div><div class="mc"><h4>弯型闭合</h4><p>出弯时有没有横切滚落线，用完整弯型自然控速。</p></div><div class="mc"><h4>转向速度</h4><p>雪板在弯内改变方向的快慢，是否和目标弯型匹配。</p></div></div></div><div class="mpane" data-m="2"><p class="mlead"><b>流畅度</b> · 动作连不连贯、弯与弯之间接得顺不顺。</p><div class="mgrid"><div class="mc"><h4>立刃流畅度</h4><p>从放平、立刃到释放，刃角变化是不是一条顺滑的曲线。</p></div><div class="mc"><h4>节奏</h4><p>连续弯的时长和幅度是否均匀。</p></div><div class="mc"><h4>弯型</h4><p>弯是不是圆润饱满的 C 形，而不是直冲后急甩。</p></div></div></div><div class="mpane" data-m="3"><p class="mlead"><b>相似度</b> · 前刃和后刃是否一样好、每个弯是否稳定可重复。</p><div class="mgrid"><div class="mc"><h4>速度相似度</h4><p>前刃弯和后刃弯的速度是否接近。</p></div><div class="mc"><h4>立刃相似度</h4><p>前刃和后刃的立刃方式是否接近。</p></div><div class="mc"><h4>转弯半径一致性</h4><p>前刃弯和后刃弯的半径是否接近，线路会不会往一侧漂。</p></div><div class="mc"><h4>前刃相似度</h4><p>每个前刃弯的立刃曲线是否相近。</p></div><div class="mc"><h4>后刃相似度</h4><p>每个后刃弯的立刃曲线是否相近。</p></div></div></div></div><div class="stage"><figure class="phone"><span class="tag">Advanced Metrics</span><img src="assets/p-seg-metric.webp" alt="Advanced Metrics" loading="lazy"></figure></div></div>
+<div class="basics"><h3>每一趟都记下的基础数据</h3><div class="chips"><span class="chip">滑行距离</span><span class="chip">累计落差</span><span class="chip">最高时速</span><span class="chip">最大立刃角</span><span class="chip">转弯次数</span><span class="chip">转弯半径</span><span class="chip">坡度</span><span class="chip">转弯节奏（次/分钟）</span><span class="chip">最佳弯形轨迹</span><span class="chip">走刃 / 搓雪识别</span><span class="chip">正脚 / 反脚识别</span><span class="chip">甩板尾等滑行问题</span></div></div></div></section>
 <section style="padding-top:0"><div class="wrap"><div class="kick">真实的一天</div><h2>Heygo 读到的，App 里都看得到</h2>
 <p class="sub">下面每一张都是 Heygo App 的真实界面，数据来自同一位单板滑手的同一个雪天（已匿名）：</p>
 <div class="rider"><div><b style="font-size:18px">10 月 30 日 · 深圳前海室内雪场</b><div style="color:var(--mut);font-size:14px;margin-top:6px">搓雪中回转为主</div></div>
@@ -79,4 +94,5 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.panel').forEach(p=>p.querySelectorAll('.item').forEach(it=>it.onclick=()=>{
  p.querySelectorAll('.item').forEach(x=>x.classList.toggle('on',x===it));
  p.querySelectorAll('.ph').forEach(x=>x.classList.toggle('on',x.dataset.i===it.dataset.i));}));
+document.querySelectorAll('.mtab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mtab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.mpane').forEach(p=>p.classList.toggle('on',p.dataset.m===b.dataset.m));});
 </script></body></html>
