@@ -1,0 +1,185 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heygo 是怎么工作的</title><link rel="icon" href="assets/favicon.png">
+<style>
+:root{--lime:#B1FE2B;--teal:#28F5D2;--ink:#0B0D10;--card:#111419;--mut:#9AA3AE;--line:#1E232A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:#fff;font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+header{position:relative;min-height:min(88vh,760px);display:flex;align-items:flex-end;background:url(assets/hero-bg.jpg) center/cover}
+header:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,16,.25),rgba(11,13,16,.55) 55%,var(--ink))}
+header .wrap{position:relative;z-index:1;padding-bottom:72px;width:100%}
+.kick{color:var(--lime);font-weight:700;letter-spacing:.14em;font-size:13px;text-transform:uppercase}
+h1{font-size:clamp(40px,6vw,76px);line-height:1.05;margin:14px 0 18px}
+.lead{font-size:clamp(17px,1.6vw,21px);color:#D7DCE2;max-width:640px;line-height:1.6}
+section{padding:96px 0}
+h2{font-size:clamp(30px,3.6vw,46px);line-height:1.15;margin:10px 0 14px}
+.sub{color:var(--mut);font-size:17px;line-height:1.7;max-width:760px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+.step{border:1px solid var(--line);border-radius:18px;padding:26px 22px;background:var(--card)}
+.step .n{color:var(--lime);font-weight:800;font-size:14px}.step h3{font-size:22px;margin:12px 0 10px}.step p{color:#C3CAD2;font-size:15px;line-height:1.7}
+.stage{position:relative;display:flex;justify-content:center}
+.stage.sticky{position:sticky;top:24px;align-self:start}
+.phone{position:relative;width:min(340px,80vw)}
+.phone img{width:100%;display:block;filter:drop-shadow(0 30px 60px rgba(0,0,0,.55))}
+.tag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--lime);color:#0B0D10;font-weight:700;font-size:12px;padding:5px 12px;border-radius:999px;z-index:2;white-space:nowrap}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+/* ---- 测什么 ---- */
+.mwrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;margin-top:36px}
+.iqcard{border:1px solid #23302f;border-radius:22px;padding:26px 26px 22px;background:radial-gradient(120% 140% at 0% 0%,rgba(40,245,210,.12),transparent 55%),var(--card);margin-bottom:28px}
+.iqtop{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.iqnum span{display:block;color:var(--teal);font-size:12px;font-weight:700;letter-spacing:.14em}
+.iqnum b{display:block;font-size:76px;line-height:1;margin:6px 0 6px;letter-spacing:-.02em}
+.iqnum em{font-style:normal;color:var(--mut);font-size:13px}
+.iqeq{font-size:34px;color:var(--mut)}
+.dimrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;min-width:280px}
+.dimv{border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center;background:#0D1013}
+.dimv b{display:block;font-size:28px}.dimv span{color:var(--mut);font-size:13px}
+.iqnote{color:#C3CAD2;font-size:15px;line-height:1.7;margin:16px 0 18px}
+.scene{border-top:1px solid var(--line);padding-top:18px}
+.scenehd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.scenehd>span{font-weight:700;font-size:16px}
+.seg{display:flex;background:#0D1013;border:1px solid var(--line);border-radius:999px;padding:3px}
+.sbtn{background:none;border:0;color:var(--mut);padding:7px 16px;border-radius:999px;cursor:pointer;font-size:14px}
+.sbtn.on{background:#fff;color:#0B0D10;font-weight:700}
+.spane{display:none}.spane.on{display:block;animation:in .3s ease}
+.cbar{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:2px}.cbar i{display:block}
+.clegend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 8px;font-size:13px;color:#C3CAD2}
+.clegend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}.clegend em{font-style:normal;color:#fff;font-weight:700;margin-left:2px}
+.spane p{color:#C3CAD2;font-size:14px;line-height:1.6}
+.scene small{display:block;color:#6E7782;font-size:12px;line-height:1.6;margin-top:10px}
+.mtabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.mtab{background:#13171C;border:1px solid var(--line);color:#fff;border-radius:999px;padding:10px 16px;cursor:pointer;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.mtab span{display:none}.mtab em{font-style:normal;font-weight:800;color:var(--teal)}
+.mtab.on{background:var(--teal);color:#0B0D10;border-color:var(--teal)}.mtab.on span,.mtab.on em{color:#0b3d36}
+.mpane{display:none}.mpane.on{display:block;animation:in .3s ease}
+.mlead{color:#C3CAD2;font-size:16px;margin-bottom:14px}.mlead b{color:var(--teal)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mc{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--card)}
+.mch{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.mc h4{font-size:17px}
+.mval{color:var(--mut);font-size:12px;white-space:nowrap}.mval b{color:#fff;font-size:14px}
+.wbar{height:6px;background:#1E232A;border-radius:999px;margin:12px 0 6px;overflow:hidden}.wbar i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.wlab{font-size:12px;color:var(--mut)}.wlab b{color:var(--teal);font-size:14px}
+.mc p{color:#AEB6C0;font-size:14px;line-height:1.65;margin-top:8px}
+.mfoot,.method{color:#6E7782;font-size:13px;line-height:1.7;margin-top:14px}
+.mph{display:none}.mph.on{display:block;animation:in .35s ease}
+/* ---- 基础数据 ---- */
+.bwrap{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center;margin-top:36px}
+.bgroup{border:1px solid var(--line);border-radius:16px;background:var(--card);margin-bottom:12px;overflow:hidden}
+.bgroup summary{list-style:none;cursor:pointer;padding:18px 20px;font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+.bgroup summary::-webkit-details-marker{display:none}
+.bgroup summary em{font-style:normal;color:var(--mut);font-size:13px;font-weight:400}
+.bgroup summary:after{content:"+";color:var(--teal);font-size:22px;margin-left:12px}.bgroup[open] summary:after{content:"–"}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px}
+.brow{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#0D1013}.brow b{display:block;font-size:15px}.brow span{color:var(--mut);font-size:13px}
+/* ---- 真实的一天 ---- */
+.daycard{border:1px solid #23302f;border-radius:22px;padding:24px 26px;margin-top:36px;background:linear-gradient(135deg,rgba(177,254,43,.08),transparent 40%),var(--card)}
+.dchd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.dchd b{display:block;font-size:20px}.dchd span{color:var(--mut);font-size:14px}
+.dcpill{border:1px solid var(--line);color:var(--mut);border-radius:999px;padding:6px 12px;font-size:12px;white-space:nowrap}
+.dcgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.dc{background:#0D1013;border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px}
+.dc span{display:block;color:var(--mut);font-size:13px;margin-bottom:8px}
+.dc b{font-size:30px;letter-spacing:-.01em}.dc small{font-size:13px;color:var(--mut);margin-left:4px;font-weight:400}
+.dc.hl{background:var(--lime);border-color:var(--lime)}.dc.hl span,.dc.hl small{color:#2a3a0a}.dc.hl b{color:#0B0D10}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:36px 0 34px}
+.tab{background:#13171C;border:1px solid var(--line);color:#fff;border-radius:999px;padding:12px 18px;cursor:pointer;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.tab span{color:var(--mut);font-size:12px}.tab.on{background:var(--lime);color:#0B0D10;border-color:var(--lime)}.tab.on span{color:#2a3a0a}
+.panel{display:none;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}.panel.on{display:grid}
+.trig{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(40,245,210,.35);background:rgba(40,245,210,.07);border-radius:14px;padding:14px 16px;margin-bottom:10px;color:#D7DCE2;font-size:15px;line-height:1.65}
+.trig b{color:var(--teal)}.ti{font-size:16px}
+.item{display:flex;gap:18px;padding:22px 0;border-top:1px solid var(--line);cursor:pointer;opacity:.5;transition:opacity .2s}
+.item:last-of-type{border-bottom:1px solid var(--line)}.item.on,.item:hover{opacity:1}
+.item .n{color:var(--lime);font-weight:800;font-size:14px;padding-top:4px;min-width:26px}
+.item h4{font-size:21px;margin-bottom:8px}.item p{color:#C3CAD2;font-size:15.5px;line-height:1.75}.item b{color:#fff}
+.ph{display:none}.ph.on{display:block;animation:in .35s ease}
+.clip{display:flex;gap:16px;align-items:center;margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:12px;background:var(--card)}
+.clip video{width:120px;height:213px;object-fit:cover;border-radius:12px;background:#000}
+.clip b{display:block;font-size:16px;margin-bottom:6px}.clip span{color:var(--mut);font-size:13px}
+/* ---- 排行榜 ---- */
+.ladder{margin-top:56px;border:1px solid var(--line);border-radius:22px;padding:28px;background:var(--card);display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;overflow:hidden}
+.soon{display:inline-block;border:1px solid var(--lime);color:var(--lime);border-radius:999px;font-size:12px;padding:4px 10px;margin-bottom:12px}
+.lhd h3{font-size:28px;margin-bottom:10px}.lhd p{color:#C3CAD2;line-height:1.7}
+.ladder small{grid-column:1/-1;color:#6E7782;font-size:12px}
+.rungs{display:flex;flex-direction:column-reverse;gap:10px}
+.rung{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:14px;padding:14px 18px;background:#0D1013;opacity:0;transform:translateY(30px);animation:climb .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*.45s);animation-play-state:paused}
+.rung b{font-size:22px;min-width:96px}.rung span{color:var(--mut);font-size:13px}
+.rung.me{background:var(--lime);border-color:var(--lime);transform:translateY(30px) scale(1.03)}.rung.me b,.rung.me span{color:#0B0D10}
+.rung em{margin-left:auto;font-style:normal;font-weight:700;color:#0B0D10;font-size:13px}
+.ladder.go .rung{animation-play-state:running}
+@keyframes climb{to{opacity:1;transform:none}}
+.tls{margin-top:48px}
+.tl{display:grid;grid-template-columns:24px 1fr 300px;gap:24px;padding:26px 0;border-top:1px solid var(--line);align-items:center}
+.tl .dot{width:12px;height:12px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(177,254,43,.15)}
+.when{color:var(--lime);font-size:13px;font-weight:700}.tl h3{font-size:24px;margin:8px 0}.tl p{color:#C3CAD2;font-size:15.5px;line-height:1.75}
+.tlimg .phone{width:240px;margin:0 auto}
+.stat{display:flex;gap:56px;flex-wrap:wrap;margin-top:40px}.stat b{font-size:44px;color:var(--lime)}.stat span{display:block;color:var(--mut);font-size:14px;margin-top:4px}
+footer{padding:40px 0 70px;color:#6E7782;font-size:13px;line-height:1.8;border-top:1px solid var(--line)}
+@media(max-width:960px){.steps{grid-template-columns:1fr 1fr}.mwrap,.bwrap,.panel.on,.ladder{grid-template-columns:1fr}.stage{order:-1}.stage.sticky{position:relative;top:0}.dcgrid{grid-template-columns:1fr 1fr}.tl{grid-template-columns:20px 1fr}.tlimg{grid-column:2}}
+@media(max-width:560px){.steps,.mgrid,.bgrid{grid-template-columns:1fr}.dimrow{grid-template-columns:1fr 1fr}section{padding:64px 0}.iqnum b{font-size:60px}}
+</style></head><body>
+<header><div class="wrap"><div class="kick">How Heygo works</div>
+<h1>从双脚，<br>读懂你的每一个弯</h1>
+<p class="lead">Heygo 的传感器和 App 一起工作：把你脚下每一个弯读出来、讲明白，再告诉你下一趟练什么。</p></div></header>
+
+<section><div class="wrap"><div class="kick">四步</div><h2>Heygo 是怎么工作的</h2>
+<p class="sub">读数据、理解数据、理解你，最后都落到 App 里你能看到、能照着做的东西上。</p>
+<div class="steps"><div class="step"><span class="n">01</span><h3>夹上，直接滑</h3><p>两枚传感器夹在左右雪鞋侧壁，打开 App 点 Go 就开始记录。不用做任何校准动作，滑几个弯它就认准了安装位置。</p></div><div class="step"><span class="n">02</span><h3>读懂每一个弯</h3><p>双脚动作以 100Hz 持续记录。Heygo 把一趟拆成一段段、一个个弯，认出你在走刃还是搓雪，记下立刃角、速度和弯形。</p></div><div class="step"><span class="n">03</span><h3>理解你这个人</h3><p>每一段都按时机、施压、流畅度、相似度四个维度给出 Heygo IQ。每次都和你自己之前比，找出属于你的问题。</p></div><div class="step"><span class="n">04</span><h3>告诉你下一步</h3><p>滑完一趟坐上缆车就有单趟报告和语音复盘；一天结束有全天报告，讲清问题在哪、为什么、下一趟练哪节课。</p></div></div></div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="kick">Heygo 测什么</div><h2>一个总分，四个维度，读懂每一个弯</h2>
+<p class="sub">每一段滑行都会得到一个 Heygo IQ。它由时机、施压、流畅度、相似度四个维度组成，每个维度下面是可以点开细看的进阶指标，全部来自你双脚的真实动作。</p>
+<div class="mwrap"><div><div class="iqcard">
+  <div class="iqtop"><div class="iqnum"><span>HEYGO IQ</span><b>125</b><em>10 月 30 日 · 当天最佳一段</em></div>
+  <div class="iqeq">≈</div><div class="dimrow"><div class="dimv"><b>133</b><span>时机</span></div><div class="dimv"><b>122</b><span>施压</span></div><div class="dimv"><b>138</b><span>流畅度</span></div><div class="dimv"><b>111</b><span>相似度</span></div></div></div>
+  <p class="iqnote">四个维度的平均分是 126，和总分 125 基本一致。哪个维度拖了后腿，一眼就能看出来。</p>
+  <div class="scene"><div class="scenehd"><span>总分怎么算</span>
+    <div class="seg"><button class="sbtn on" data-s="skid">搓雪</button><button class="sbtn" data-s="carv">走刃</button></div></div>
+    <div class="spane on" data-s="skid"><div class="cbar"><i style="flex:25.7;background:#28F5D2"></i><i style="flex:27.8;background:#B1FE2B"></i><i style="flex:22.0;background:#7FA7FF"></i><i style="flex:6.1;background:#FFB54A"></i><i style="flex:18.3;background:#9AA3AE"></i></div><div class="clegend"><span><b style="background:#28F5D2"></b>时机 <em>26%</em></span><span><b style="background:#B1FE2B"></b>施压 <em>28%</em></span><span><b style="background:#7FA7FF"></b>流畅度 <em>22%</em></span><span><b style="background:#FFB54A"></b>弯与弯的一致性 <em>6%</em></span><span><b style="background:#9AA3AE"></b>难度（坡度、立刃角） <em>18%</em></span></div><p>搓雪时，弯与弯之间是否一致也算进总分。</p></div>
+    <div class="spane" data-s="carv"><div class="cbar"><i style="flex:25.4;background:#28F5D2"></i><i style="flex:27.3;background:#B1FE2B"></i><i style="flex:24.7;background:#7FA7FF"></i><i style="flex:22.6;background:#9AA3AE"></i></div><div class="clegend"><span><b style="background:#28F5D2"></b>时机 <em>25%</em></span><span><b style="background:#B1FE2B"></b>施压 <em>27%</em></span><span><b style="background:#7FA7FF"></b>流畅度 <em>25%</em></span><span><b style="background:#9AA3AE"></b>难度（坡度、立刃角） <em>23%</em></span></div><p>走刃时更看重弯型和负荷，前后刃相似度不计入总分，只体现在相似度这个维度上。</p></div>
+    <small>Heygo 先识别你这一段在走刃还是搓雪，再用对应的模型打分。同样一个弯，两种动作看重的东西不一样。占比按各项满分时对总分的贡献换算。</small>
+  </div></div><div class="mtabs"><button class="mtab on" data-m="timing"><b>时机</b><span>Timing</span><em>133</em></button><button class="mtab" data-m="pressure"><b>施压</b><span>Pressure</span><em>122</em></button><button class="mtab" data-m="flow"><b>流畅度</b><span>Flow</span><em>138</em></button><button class="mtab" data-m="similarity"><b>相似度</b><span>Similarity</span><em>111</em></button></div><div class="mpane on" data-m="timing"><p class="mlead"><b>时机 133</b> · 该换刃的时候换没换、换得够不够早。</p><div class="mgrid"><div class="mc"><div class="mch"><h4>提前换刃</h4><span class="mval">这一段 <b>51</b></span></div>
+<div class="wbar"><i style="width:31%"></i></div><div class="wlab">占时机维度 <b>31%</b></div><p>在板头冲向滚落线之前有多早完成换刃。越早，上半弧越完整，弯中越好控速。</p></div><div class="mc"><div class="mch"><h4>立刃速度</h4><span class="mval">这一段 <b>69</b></span></div>
+<div class="wbar"><i style="width:31%"></i></div><div class="wlab">占时机维度 <b>31%</b></div><p>换刃后刃角建立得快不快、稳不稳。</p></div><div class="mc"><div class="mch"><h4>换刃减压</h4><span class="mval">这一段 <b>68</b></span></div>
+<div class="wbar"><i style="width:38%"></i></div><div class="wlab">占时机维度 <b>38%</b></div><p>换刃时旧弯的压力有没有及时、平顺地放掉。</p></div></div></div><div class="mpane" data-m="pressure"><p class="mlead"><b>施压 122</b> · 弯中压力给得稳不稳、够不够。</p><div class="mgrid"><div class="mc"><div class="mch"><h4>离心力</h4><span class="mval">这一段 <b>1.3g</b></span></div>
+<div class="wbar"><i style="width:53%"></i></div><div class="wlab">占施压维度 <b>53%</b></div><p>弯中承受的负荷有多大。速度和刃角都到位，负荷才上得去。</p></div><div class="mc"><div class="mch"><h4>转向速度</h4><span class="mval">这一段 <b>65</b></span></div>
+<div class="wbar"><i style="width:22%"></i></div><div class="wlab">占施压维度 <b>22%</b></div><p>雪板在弯内改变方向的快慢，是否和目标弯型匹配。</p></div><div class="mc"><div class="mch"><h4>弯型闭合</h4><span class="mval">这一段 <b>72</b></span></div>
+<div class="wbar"><i style="width:13%"></i></div><div class="wlab">占施压维度 <b>13%</b></div><p>出弯时有没有横切滚落线，用完整弯型自然控速。</p></div><div class="mc"><div class="mch"><h4>施压质量</h4><span class="mval">这一段 <b>45</b></span></div>
+<div class="wbar"><i style="width:11%"></i></div><div class="wlab">占施压维度 <b>11%</b></div><p>整个弯里压力施加和释放是否连续、集中、可重复。</p></div></div></div><div class="mpane" data-m="flow"><p class="mlead"><b>流畅度 138</b> · 动作连不连贯、弯与弯之间接得顺不顺。</p><div class="mgrid"><div class="mc"><div class="mch"><h4>弯型</h4><span class="mval">这一段 <b>78</b></span></div>
+<div class="wbar"><i style="width:55%"></i></div><div class="wlab">占流畅度维度 <b>55%</b></div><p>弯是不是圆润饱满的 C 形，而不是直冲后急甩。</p></div><div class="mc"><div class="mch"><h4>立刃流畅度</h4><span class="mval">这一段 <b>46</b></span></div>
+<div class="wbar"><i style="width:33%"></i></div><div class="wlab">占流畅度维度 <b>33%</b></div><p>从放平、立刃到释放，刃角变化是不是一条顺滑的曲线。</p></div><div class="mc"><div class="mch"><h4>节奏</h4><span class="mval">这一段 <b>71</b></span></div>
+<div class="wbar"><i style="width:12%"></i></div><div class="wlab">占流畅度维度 <b>12%</b></div><p>连续弯的时长和幅度是否均匀。</p></div></div></div><div class="mpane" data-m="similarity"><p class="mlead"><b>相似度 111</b> · 前刃和后刃是否一样好、每个弯是否稳定可重复。</p><div class="mgrid"><div class="mc"><div class="mch"><h4>立刃相似度</h4><span class="mval">这一段 <b>72</b></span></div>
+<div class="wbar"><i style="width:40%"></i></div><div class="wlab">占相似度维度 <b>40%</b></div><p>前刃和后刃的立刃方式是否接近。</p></div><div class="mc"><div class="mch"><h4>速度相似度</h4><span class="mval">这一段 <b>78</b></span></div>
+<div class="wbar"><i style="width:33%"></i></div><div class="wlab">占相似度维度 <b>33%</b></div><p>前刃弯和后刃弯的速度是否接近。</p></div><div class="mc"><div class="mch"><h4>转弯半径相似度</h4><span class="mval">这一段 <b>50</b></span></div>
+<div class="wbar"><i style="width:27%"></i></div><div class="wlab">占相似度维度 <b>27%</b></div><p>前刃弯和后刃弯的半径是否接近，线路会不会往一侧漂。</p></div></div><p class="mfoot">App 里还会单独展示前刃相似度、后刃相似度，帮你看清哪一侧更不稳定。这两项只作展示，不参与打分。</p></div>
+<p class="method">维度内各指标的配比在所有动作下都一样；总分会按走刃或搓雪换一套权重。所有数字都来自同一位滑手 10 月 30 日的真实一段。</p></div>
+<div class="stage sticky"><div class="mph on" data-m="timing"><figure class="phone "><span class="tag">时机 · 进阶指标</span><img src="assets/p-m-timing.webp" alt="时机 · 进阶指标" loading="lazy"></figure></div><div class="mph" data-m="pressure"><figure class="phone "><span class="tag">施压 · 进阶指标</span><img src="assets/p-m-pressure.webp" alt="施压 · 进阶指标" loading="lazy"></figure></div><div class="mph" data-m="flow"><figure class="phone "><span class="tag">流畅度 · 进阶指标</span><img src="assets/p-m-flow.webp" alt="流畅度 · 进阶指标" loading="lazy"></figure></div><div class="mph" data-m="similarity"><figure class="phone "><span class="tag">相似度 · 进阶指标</span><img src="assets/p-m-similarity.webp" alt="相似度 · 进阶指标" loading="lazy"></figure></div></div></div></div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="kick">基础数据</div><h2>指标之外，每一趟的基础数据也都在</h2>
+<div class="bwrap"><div class="stage"><figure class="phone "><span class="tag">Segment Stats</span><img src="assets/p-seg-stats.webp" alt="Segment Stats" loading="lazy"></figure></div><div>
+<p class="sub" style="margin-bottom:22px">除了 Heygo IQ，每一趟、每一段都会自动记下这些基础数据，不需要你手动开始或结束。</p><details class="bgroup" open><summary>每一趟都会记下<em>4 项</em></summary><div class="bgrid"><div class="brow"><b>滑行距离</b><span>这一趟滑了多远</span></div><div class="brow"><b>累计落差</b><span>从山顶到山脚下降了多少米</span></div><div class="brow"><b>最高时速</b><span>这一趟最快的瞬间</span></div><div class="brow"><b>滑行时长</b><span>从出发到停下</span></div></div></details><details class="bgroup"><summary>每一个弯都会记下<em>4 项</em></summary><div class="bgrid"><div class="brow"><b>最大立刃角</b><span>板子立得有多深</span></div><div class="brow"><b>转弯半径</b><span>弯的大小</span></div><div class="brow"><b>转弯节奏</b><span>每分钟转几个弯</span></div><div class="brow"><b>坡度</b><span>这段雪道有多陡</span></div></div></details><details class="bgroup"><summary>Heygo 自动识别<em>4 项</em></summary><div class="bgrid"><div class="brow"><b>走刃 / 搓雪</b><span>你这一段用的是哪种滑法</span></div><div class="brow"><b>正脚 / 反脚</b><span>你是用哪只脚在前</span></div><div class="brow"><b>滑行问题</b><span>比如甩板尾、换刃太晚</span></div><div class="brow"><b>最佳弯形</b><span>把这一段最好的弯画出来</span></div></div></details></div></div></div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="kick">真实的一天</div><h2>Heygo 读到的，App 里都看得到</h2>
+<p class="sub">下面每一张都是 Heygo App 的真实界面，数据来自同一位单板滑手的同一个雪天。</p>
+<div class="daycard"><div class="dchd"><div><b>10 月 30 日 · 深圳前海室内雪场</b><span>搓雪中回转为主 · 第二次带 Heygo 上雪</span></div>
+<div class="dcpill">真实数据 · 已匿名</div></div><div class="dcgrid"><div class="dc hl"><span>当天最高分</span><b>125<small>Heygo IQ</small></b></div><div class="dc"><span>滑行距离</span><b>3.5<small>km</small></b></div><div class="dc"><span>累计落差</span><b>898<small>m</small></b></div><div class="dc"><span>最高时速</span><b>31<small>km/h</small></b></div><div class="dc"><span>滑行时长</span><b>2h 45m<small></small></b></div><div class="dc"><span>趟数 / 弯数</span><b>11 / 404<small></small></b></div><div class="dc"><span>最大立刃角</span><b>57°<small></small></b></div><div class="dc"><span>本季累计里程</span><b>6.2<small>km</small></b></div></div></div>
+<div class="tabs"><button class="tab on" data-t="day"><b>每一天</b><span>全天报告</span></button><button class="tab" data-t="run"><b>每一趟</b><span>单趟报告</span></button><button class="tab" data-t="next"><b>下一趟怎么练</b><span>课程视频</span></button><button class="tab" data-t="seg"><b>每一段</b><span>片段详情</span></button><button class="tab" data-t="chat"><b>AI 对话</b><span>随时问</span></button><button class="tab" data-t="live"><b>滑行中</b><span>语音</span></button></div><div class="panel on" data-t="day"><div class="list"><div class="trig"><span class="ti">⏱</span><div><b>什么时候出：</b>当天滑完、点结束滑行后生成全天报告。</div></div><div class="item on" data-i="0"><span class="n">01</span><div><h4>一句话说清今天</h4><p>「11 趟滑完，搓雪整体比上一次上雪发挥得好，收尾那几趟还把状态往上提了一截。」第一句就是拿今天和你上一次比，它记得你上次滑成什么样。</p></div></div><div class="item" data-i="1"><span class="n">02</span><div><h4>问题、原因、怎么练，一条线讲完</h4><p>Heygo 洞察把今天拆成四步：<b>数据</b>（今天记到 19 次甩板尾，多在后刃）→ <b>归因</b>（转弯一开始后脚先动，板头还没接上方向）→ <b>技能</b>（让前脚先改变刃角）→ <b>练习</b>。</p></div></div><div class="item" data-i="2"><span class="n">03</span><div><h4>今天比上次高在哪</h4><p>Heygo IQ 占比把今天和前一个雪天放在一起，一眼看出更多时间滑在了更高的分段。</p></div></div><div class="item" data-i="3"><span class="n">04</span><div><h4>11 趟的起伏都在图上</h4><p>时机、施压、流畅度、相似度四条线随每一趟变化；第 6 趟的低谷和之后的回升清清楚楚。</p></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">Day Report</span><img src="assets/p-day-top.webp" alt="Day Report" loading="lazy"></figure></div><div class="ph" data-i="1"><figure class="phone "><span class="tag">Heygo Insight</span><img src="assets/p-day-insight.webp" alt="Heygo Insight" loading="lazy"></figure></div><div class="ph" data-i="2"><figure class="phone "><span class="tag">Heygo IQ</span><img src="assets/p-day-iq.webp" alt="Heygo IQ" loading="lazy"></figure></div><div class="ph" data-i="3"><figure class="phone "><span class="tag">Full Dimension</span><img src="assets/p-day-trend.webp" alt="Full Dimension" loading="lazy"></figure></div></div></div><div class="panel" data-t="run"><div class="list"><div class="trig"><span class="ti">⏱</span><div><b>什么时候出：</b>滑完一趟坐上缆车，上升大约 10 米时，耳机里开始播报，同时生成上一趟的报告。</div></div><div class="item on" data-i="0"><span class="n">01</span><div><h4>和上一趟一比，就知道掉在哪</h4><p>这一天的第 6 趟分数掉到 100。趟间对比直接列出：弯型 −25、节奏 −18、压力释放 −16、施压质量 −14。</p></div></div><div class="item" data-i="1"><span class="n">02</span><div><h4>不只说哪里差，还说为什么</h4><p>「换刃一直拖到板头快朝山下才做，雪板顺着坡度加速的时间被拉长，速度就越攒越快。」原因落在具体哪几段、前刃还是后刃。</p></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">Run Report</span><img src="assets/p-run-top.webp" alt="Run Report" loading="lazy"></figure></div><div class="ph" data-i="1"><figure class="phone "><span class="tag">Heygo Insight</span><img src="assets/p-run-insight.webp" alt="Heygo Insight" loading="lazy"></figure></div></div></div><div class="panel" data-t="next"><div class="list"><div class="trig"><span class="ti">⏱</span><div><b>什么时候出：</b>每份单趟报告都会给出下一趟练什么，并直接挂上对应的课程。</div></div><div class="item on" data-i="0"><span class="n">01</span><div><h4>坐在缆车上就知道下一趟练什么</h4><p>报告点出问题之后，直接给出「下一趟」怎么做，并推荐对应的课程「更早立刃」。</p></div></div><div class="item" data-i="1"><span class="n">02</span><div><h4>点开就是视频课</h4><p>每节课都有真人示范视频，按目标、减压、立刃、平板分成几段，可以跳着看。下面还有分步要领，照着做就行。</p></div></div><div class="clip"><video src="assets/course-early-edge.mp4" poster="assets/course-poster.jpg" autoplay muted loop playsinline></video>
+<div><b>课程片段 ·「更早立刃」</b><span>App 内真实课程视频，节选 14 秒</span></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">Next Run</span><img src="assets/p-run-next.webp" alt="Next Run" loading="lazy"></figure></div><div class="ph" data-i="1"><figure class="phone "><span class="tag">Course</span><img src="assets/p-drillvideo.webp" alt="Course" loading="lazy"></figure></div></div></div><div class="panel" data-t="seg"><div class="list"><div class="item on" data-i="0"><span class="n">01</span><div><h4>先说你哪里做得好</h4><p>当天最好的一段，Heygo IQ 125：「这一段大部分弯的节奏间隔接近，弯与弯之间接得顺，换弯的压力释放稳多了。」</p></div></div><div class="item" data-i="1"><span class="n">02</span><div><h4>把最好的弯画出来</h4><p>最佳弯形按真实轨迹还原，可以切换按速度或按立刃角着色，前刃、后刃各占半边。</p></div></div><div class="item" data-i="2"><span class="n">03</span><div><h4>每一个弯都单独记着</h4><p>13 个弯，每个弯的最高时速、最大立刃和转弯半径都在，前刃弯和后刃弯用图标分开。</p></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">Segment</span><img src="assets/p-seg-top.webp" alt="Segment" loading="lazy"></figure></div><div class="ph" data-i="1"><figure class="phone "><span class="tag">Best Turn Shape</span><img src="assets/p-turn-shape.webp" alt="Best Turn Shape" loading="lazy"></figure></div><div class="ph" data-i="2"><figure class="phone "><span class="tag">Turn Analysis</span><img src="assets/p-turn-list.webp" alt="Turn Analysis" loading="lazy"></figure></div></div></div><div class="panel" data-t="chat"><div class="list"><div class="trig"><span class="ti">⏱</span><div><b>什么时候用：</b>很多人滑了四五趟，会停下来跟 Heygo 聊一聊：今天想练什么、最想改哪个动作。之后的报告会顺着这个方向给建议。</div></div><div class="item on" data-i="0"><span class="n">01</span><div><h4>直接问：我的滑行有啥要改的</h4><p>它会翻你的历史记录，把问题归成一两件事，告诉你先练哪一个、怎么练、做对了是什么感觉。下面是一段真实对话。</p></div></div><div class="item" data-i="1"><span class="n">02</span><div><h4>练完这个，下一步练什么</h4><p>它知道你现在走到哪一步，会按顺序给你下一阶段：更早立刃之后接身体折叠，再往后才是走刃。</p></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">AI Chat</span><img src="assets/p-chat1.webp" alt="AI Chat" loading="lazy"></figure></div><div class="ph" data-i="1"><figure class="phone "><span class="tag">AI Chat</span><img src="assets/p-chat2.webp" alt="AI Chat" loading="lazy"></figure></div></div></div><div class="panel" data-t="live"><div class="list"><div class="trig"><span class="ti">⏱</span><div><b>什么时候说：</b>滑行中只在关键时刻用耳机简短提醒，不打断你的节奏。</div></div><div class="item on" data-i="0"><span class="n">01</span><div><h4>想听多少自己定</h4><p>详细、简洁、静音三种模式。认真练的时候多提醒，放松滑的时候只说要紧的。</p></div></div></div><div class="stage"><div class="ph on" data-i="0"><figure class="phone "><span class="tag">Coach Mode</span><img src="assets/p-coach.webp" alt="Coach Mode" loading="lazy"></figure></div></div></div></div></section>
+
+<section style="padding-top:20px"><div class="wrap"><div class="kick">越滑越懂你</div><h2>用得越多，它越懂你</h2>
+<p class="sub">Heygo 先认识你，再记住你。每一份报告都建立在你自己之前的数据上。</p>
+<div class="tls"><div class="tl"><div class="dot"></div><div class="tlt"><span class="when">9 月 29 日</span><h3>7 趟 · 210 个弯 · 当日最佳 Heygo IQ 118</h3><p>最大立刃 50°。第一份全天报告给出了这一天的起伏和最该练的动作。</p></div><div class="tlimg"><figure class="phone "><span class="tag">9/29 Day Report</span><img src="assets/p-first-day.webp" alt="9/29 Day Report" loading="lazy"></figure></div></div><div class="tl"><div class="dot"></div><div class="tlt"><span class="when">一个月后 · 10 月 30 日</span><h3>11 趟 · 404 个弯 · 当日最佳 Heygo IQ 125</h3><p>最大立刃 57°。报告第一句就是和上一次比：「搓雪整体比上一次上雪发挥得好」。</p></div><div class="tlimg"><figure class="phone "><span class="tag">10/30 Run Report</span><img src="assets/p-best-run.webp" alt="10/30 Run Report" loading="lazy"></figure></div></div></div>
+<div class="ladder"><div class="lhd"><span class="soon">即将上线</span><h3>Global 排行榜</h3>
+<p>你滑得越多、Heygo IQ 越高，在全球排行榜上的位置就会一层一层往上爬。</p></div><div class="rungs"><div class="rung" style="--i:0"><b>#12,480</b><span></span></div><div class="rung" style="--i:1"><b>#3,201</b><span></span></div><div class="rung" style="--i:2"><b>#860</b><span></span></div><div class="rung me" style="--i:3"><b>#128</b><span>Global · 本季</span><em>你在这里</em></div></div>
+<small>排名为示意。</small></div>
+<div class="stat"><div><b>200 万+</b><span>累计采集滑行数据</span></div><div><b>100+</b><span>数据维度</span></div><div><b>100Hz</b><span>双脚运动追踪</span></div></div>
+</div></section>
+
+<footer><div class="wrap">页面中的 App 界面均为 Heygo App 真实界面，渲染自真实滑行数据，滑手身份已匿名；AI 对话为真实对话节选。报告中的 AI 生成内容仅供参考。排行榜为即将上线的功能，排名为示意。<br>© Heygo</div></footer>
+<script>
+const $=(s,r=document)=>[...r.querySelectorAll(s)];
+$('.tab').forEach(b=>b.onclick=()=>{$('.tab').forEach(x=>x.classList.toggle('on',x===b));$('.panel').forEach(p=>p.classList.toggle('on',p.dataset.t===b.dataset.t));});
+$('.panel').forEach(p=>$('.item',p).forEach(it=>it.onclick=()=>{$('.item',p).forEach(x=>x.classList.toggle('on',x===it));$('.ph',p).forEach(x=>x.classList.toggle('on',x.dataset.i===it.dataset.i));}));
+$('.mtab').forEach(b=>b.onclick=()=>{const m=b.dataset.m;$('.mtab').forEach(x=>x.classList.toggle('on',x===b));$('.mpane').forEach(x=>x.classList.toggle('on',x.dataset.m===m));$('.mph').forEach(x=>x.classList.toggle('on',x.dataset.m===m));});
+$('.sbtn').forEach(b=>b.onclick=()=>{$('.sbtn').forEach(x=>x.classList.toggle('on',x===b));$('.spane').forEach(x=>x.classList.toggle('on',x.dataset.s===b.dataset.s));});
+const L=document.querySelector('.ladder');new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)L.classList.add('go')}),{threshold:.4}).observe(L);
+</script></body></html>
