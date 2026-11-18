@@ -111,6 +111,7 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
   .hint{display:none}
   .dim{padding:16px}
   .feat.wide .mods{grid-column:1/-1;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+  .feat.wide .mods.m4{grid-template-columns:repeat(4,1fr)}
   .mod{padding:16px 18px}
   .issues{padding:44px 48px;margin-top:24px;border-radius:28px}
   .issues h2{font-size:30px}
@@ -235,19 +236,18 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
   </div>
   <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>整段轨迹 · 立刃角度</figcaption><img src="assets/r-track1-zh.webp" alt="整段轨迹 · 立刃角度" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>点一个弯 · 看这个弯的数据</figcaption><img src="assets/r-track2-zh.webp" alt="点一个弯 · 看这个弯的数据" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>切换侧向离心力</figcaption><img src="assets/r-track3-zh.webp" alt="切换侧向离心力" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
 </section>
-<section class="feat" id="chat">
+<section class="feat wide" id="chat">
   <div class="txt">
     <div class="head"><div class="num">08</div>
     <h2>Chatbot<span class="tag">Heygo 教练对话</span></h2>
-    <p class="what">随时可以问的 AI 滑雪教练。</p></div>
+    <p class="what">陪你滑一整天的 AI 陪伴搭子：每趟滑完主动把弯型和报告推给你，耳边说过的话都留在对话里，有问题随时问。</p></div>
     <dl>
-      <dt>怎么用</dt><dd>它看得到你每一趟、每一天的数据和报告，也记得之前聊过什么，所以回答是针对你本人的。「今天哪里进步了？」「后刃弯总收不住怎么办？」「下一趟练什么？」都可以直接问，还会推荐对应的练习。</dd>
-      <dt>在哪里</dt><dd class="where">底部 Go 页面就是对话界面；某一天、某一趟、某个片段的详情页点「和教练聊聊」，会带着这段滑行一起问。</dd>
+      <dt>怎么用</dt><dd>不用找，内容会自己来：出发前一张简报，每趟滑完推送报告和这一趟的最佳弯型，滑行中教练在耳边的提醒也会同步成卡片。想深入就直接问，比如「后刃弯总收不住怎么办？」「下一趟练什么？」。它看得到你每一趟、每一天的数据，也记得之前聊过什么，回答针对你本人，并给出马上能去练的方法。</dd>
+      <dt>在哪里</dt><dd class="where">底部 Go 页面就是对话界面，滑行中也能看、能问；某一天、某一趟、某个片段的详情页点「和教练聊聊」，会带着这段滑行一起问。</dd>
     </dl>
-    
-    
+    <div class="mods m4"><div class="mod"><div class="mod-h"><b>主动推送弯型</b><span>滑完一趟，弯已经画好送到你面前</span></div><ul><li><b>第 N 趟最佳轨迹</b>每趟结束后自动推送一张卡片：把这一趟最好的一组弯画成轨迹，附转弯次数、最高时速、最大立刃。</li><li><b>点开看完整轨迹</b>点卡片进入这一段的完整弯型复现，一个弯一个弯地看。</li></ul></div><div class="mod"><div class="mod-h"><b>教练语音同步到对话</b><span>耳边听过的，回头还能再看</span></div><ul><li><b>问题提醒</b>滑行中发现问题，教练在耳机里提醒你，对话里同时留一张「教练语音」卡片，带时间和原话。</li><li><b>进步反馈</b>你改过来了，教练第一时间告诉你，这句话也记在对话里。</li></ul></div><div class="mod"><div class="mod-h"><b>有问必答的教学</b><span>结合你的数据，讲原因也给练法</span></div><ul><li><b>先讲为什么</b>根据你今天的滑行说清问题出在哪，不讲空话。</li><li><b>再给练法</b>给出具体练习和分步动作，并告诉你做对了是什么感觉。</li></ul></div><div class="mod"><div class="mod-h"><b>主动报告与提醒</b><span>一天的节奏，它帮你记着</span></div><ul><li><b>出发前简报</b>开滑时回顾上次的情况，告诉你今天的重点和一个动作要领。</li><li><b>单趟报告</b>每趟结束推送报告卡片：Heygo IQ、核心数据、下一趟练什么，还有对应的练习视频。</li><li><b>里程碑与关怀</b>速度、距离等破纪录时推送里程碑卡片；摔倒后问一句你还好吗。</li></ul></div></div>
   </div>
-  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>滑行中 · 教练对话</figcaption><img src="assets/r-chatride-zh.webp" alt="滑行中 · 教练对话" loading="lazy" width="398" height="742"></figure></div></div></div>
+  <div class="media"><div class="stage multi" style="--n:5"><div class="row"><figure class="ph"><figcaption>主动推送 · 最佳弯型</figcaption><img src="assets/r-chatturn-zh.webp" alt="主动推送 · 最佳弯型" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>教练语音 · 同步到对话</figcaption><img src="assets/r-chatvoice-zh.webp" alt="教练语音 · 同步到对话" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>提问 · 教学回答</figcaption><img src="assets/r-chatteach-zh.webp" alt="提问 · 教学回答" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>出发前简报 · 单趟报告</figcaption><img src="assets/r-chatbrief-zh.webp" alt="出发前简报 · 单趟报告" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>里程碑 · 滑行中提问</figcaption><img src="assets/r-chatride-zh.webp" alt="里程碑 · 滑行中提问" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">左右滑动查看更多界面 →</p></div>
 </section>
 <section class="feat wide" id="voice">
   <div class="txt">
@@ -377,19 +377,18 @@ footer{text-align:center;padding:24px 20px 40px;color:#8492A6;font-size:12px}
   </div>
   <div class="media"><div class="stage multi" style="--n:3"><div class="row"><figure class="ph"><figcaption>Full Track · Edge Angle</figcaption><img src="assets/r-track1-en.webp" alt="Full Track · Edge Angle" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Tap a Turn · Its Numbers</figcaption><img src="assets/r-track2-en.webp" alt="Tap a Turn · Its Numbers" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Lateral G View</figcaption><img src="assets/r-track3-en.webp" alt="Lateral G View" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
 </section>
-<section class="feat" id="en-chat">
+<section class="feat wide" id="en-chat">
   <div class="txt">
     <div class="head"><div class="num">08</div>
     <h2>Chatbot<span class="tag">Chat with Heygo Coach</span></h2>
-    <p class="what">An AI snowboard coach you can ask anytime.</p></div>
+    <p class="what">Your AI riding buddy for the whole day. After every run it sends you your turn shape and report, keeps what it said in your ear, and answers whenever you ask.</p></div>
     <dl>
-      <dt>How it helps</dt><dd>It sees every run and day you’ve ridden, reads your reports and remembers past chats — so answers are about you. Ask “Where did I improve today?”, “Why can’t I finish my heelside turns?” or “What should I work on next run?” and get drills to match.</dd>
-      <dt>Where to find it</dt><dd class="where">The Go tab is the chat. On any day, run or segment, tap “Chat with coach” to ask about that exact ride.</dd>
+      <dt>How it helps</dt><dd>You don’t have to go looking. A briefing before you start, a report and your best turns after every run, and every voice tip from your ride saved as a card. Want more? Just ask: “Why can’t I finish my heelside turns?” or “What should I work on next run?” It sees every run and day you’ve ridden and remembers past chats, so answers are about you, with drills you can try right away.</dd>
+      <dt>Where to find it</dt><dd class="where">The Go tab is the chat, and it works while you ride. On any day, run or segment, tap “Chat with coach” to ask about that exact ride.</dd>
     </dl>
-    
-    
+    <div class="mods m4"><div class="mod"><div class="mod-h"><b>Turn shape, pushed to you</b><span>Finish a run, your turns are already drawn</span></div><ul><li><b>Run N best track</b>After each run, a card shows the best pair of turns from that run, with turn count, top speed and max edge.</li><li><b>Tap for the full track</b>Open the card to replay the whole segment, turn by turn.</li></ul></div><div class="mod"><div class="mod-h"><b>Coach voice, saved in chat</b><span>Heard it in your ear? Read it again later</span></div><ul><li><b>Issue call-outs</b>When the coach spots something mid-ride, you hear it in your earbuds and get a “Coach Voice” card with the time and exact words.</li><li><b>Progress</b>When you fix it, the coach tells you right away, and that goes in the chat too.</li></ul></div><div class="mod"><div class="mod-h"><b>Answers that teach</b><span>Based on your data: the why and the drill</span></div><ul><li><b>The why first</b>Explains what is going on in your own riding today, not generic tips.</li><li><b>Then the drill</b>Step-by-step practice, and how it feels when you get it right.</li></ul></div><div class="mod"><div class="mod-h"><b>Reports and check-ins</b><span>It keeps track of your day</span></div><ul><li><b>Pre-ride briefing</b>When you start: a recap of last time, today’s focus and one key move.</li><li><b>Run report</b>After each run: Heygo IQ, key stats, what to work on next and a matching drill video.</li><li><b>Milestones and care</b>A card when you set a new best in speed, distance and more. After a fall, it checks you’re OK.</li></ul></div></div>
   </div>
-  <div class="media"><div class="stage" style="--n:1"><div class="row"><figure class="ph"><figcaption>On the Slope · Coach Chat</figcaption><img src="assets/r-chatride-en.webp" alt="On the Slope · Coach Chat" loading="lazy" width="398" height="742"></figure></div></div></div>
+  <div class="media"><div class="stage multi" style="--n:5"><div class="row"><figure class="ph"><figcaption>Best Turn Shape</figcaption><img src="assets/r-chatturn-en.webp" alt="Best Turn Shape" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Coach Voice Cards</figcaption><img src="assets/r-chatvoice-en.webp" alt="Coach Voice Cards" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Teaching Answer</figcaption><img src="assets/r-chatteach-en.webp" alt="Teaching Answer" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Briefing · Report</figcaption><img src="assets/r-chatbrief-en.webp" alt="Briefing · Report" loading="lazy" width="398" height="742"></figure><figure class="ph"><figcaption>Milestone · Ask</figcaption><img src="assets/r-chatride-en.webp" alt="Milestone · Ask" loading="lazy" width="398" height="742"></figure></div></div><p class="hint">Swipe for more screens →</p></div>
 </section>
 <section class="feat wide" id="en-voice">
   <div class="txt">
